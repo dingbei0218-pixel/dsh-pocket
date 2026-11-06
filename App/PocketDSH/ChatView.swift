@@ -33,17 +33,14 @@ struct ChatScreen: View {
                 EmptyStateView()
             }
         }
-        .toolbar { toolbarContent }
-    }
-
-    @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        #if os(macOS)
-        ToolbarItem(placement: .automatic) {
-            Text(model.projection?.displayTitle ?? "DSH Pocket")
-                .font(.headline)
+        .toolbar {
+            #if os(macOS)
+            ToolbarItem(placement: .automatic) {
+                Text(model.projection?.displayTitle ?? "DSH Pocket")
+                    .font(.headline)
+            }
+            #endif
         }
-        #endif
     }
 }
 

@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import DSHKit
 
 /// 把「工具审批」从 Agent 的异步闭包桥接到 SwiftUI。

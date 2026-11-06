@@ -8,6 +8,7 @@ public struct DeepSeekConfig: Sendable {
     public var baseURL: URL
     public var model: String
     public var apiKey: @Sendable () async throws -> String
+    public var reasoningEffort: String?
     public var temperature: Double?
     public var maxTokens: Int?
     public var extraHeaders: [String: String]
@@ -16,6 +17,7 @@ public struct DeepSeekConfig: Sendable {
         baseURL: URL = URL(string: "https://api.deepseek.com")!,
         model: String = "deepseek-chat",
         apiKey: @escaping @Sendable () async throws -> String,
+        reasoningEffort: String? = nil,
         temperature: Double? = nil,
         maxTokens: Int? = nil,
         extraHeaders: [String: String] = [:]
@@ -23,6 +25,7 @@ public struct DeepSeekConfig: Sendable {
         self.baseURL = baseURL
         self.model = model
         self.apiKey = apiKey
+        self.reasoningEffort = reasoningEffort
         self.temperature = temperature
         self.maxTokens = maxTokens
         self.extraHeaders = extraHeaders
@@ -128,7 +131,8 @@ public final class DeepSeekProvider: LLMProvider, @unchecked Sendable {
             messages: request.messages.map(WireMessage.init),
             tools: request.tools.isEmpty ? nil : request.tools.map(WireTool.init),
             temperature: request.temperature ?? config.temperature,
-            maxTokens: request.maxTokens ?? config.maxTokens
+            maxTokens: request.maxTokens ?? config.maxTokens,
+            reasoningEffort: config.reasoningEffort
         )
         var urlRequest = URLRequest(url: config.chatCompletionsURL)
         urlRequest.httpMethod = "POST"
@@ -151,12 +155,26 @@ private struct WireRequest: Encodable {
     var tools: [WireTool]?
     var temperature: Double?
     var maxTokens: Int?
+    var reasoningEffort: String?
     var stream = true
     var streamOptions = WireStreamOptions(includeUsage: true)
 
     enum CodingKeys: String, CodingKey {
         case model, messages, tools, temperature, stream, streamOptions
         case maxTokens = "max_tokens"
+        case reasoningEffort = "reasoning_effort"
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(model, forKey: .model)
+        try container.encode(messages, forKey: .messages)
+        try container.encodeIfPresent(tools, forKey: .tools)
+        try container.encodeIfPresent(temperature, forKey: .temperature)
+        try container.encodeIfPresent(maxTokens, forKey: .maxTokens)
+        try container.encodeIfPresent(reasoningEffort, forKey: .reasoningEffort)
+        try container.encode(stream, forKey: .stream)
+        try container.encode(streamOptions, forKey: .streamOptions)
     }
 }
 

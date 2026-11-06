@@ -18,6 +18,8 @@ final class SkinManager: ObservableObject {
     @Published private(set) var installingID: String?
     @Published private(set) var statusMessage: String?
     @Published private(set) var backgroundIsPreview = false
+    @Published private(set) var backgroundPattern: SkinPattern?
+    @Published private(set) var backgroundIsArtwork = false
     @Published var errorMessage: String?
 
     @Published var repositoryURL: String {
@@ -84,6 +86,8 @@ final class SkinManager: ObservableObject {
         theme = .dsh
         backgroundURL = nil
         backgroundIsPreview = false
+        backgroundPattern = nil
+        backgroundIsArtwork = false
         #if canImport(UIKit)
         backgroundImage = nil
         #endif
@@ -114,8 +118,24 @@ final class SkinManager: ObservableObject {
             // 3) token 很少的皮肤也走预览图兜底。
             let media = skin.backgroundURL.flatMap { FileManager.default.fileExists(atPath: $0.path) ? $0 : nil }
             let preview = skin.previewURL.flatMap { FileManager.default.fileExists(atPath: $0.path) ? $0 : nil }
+            let pattern = SkinPattern.parse(patches: skin.patchesURL)
+            let artwork = SkinArtwork.find(in: skin.directory)
+            backgroundPattern = pattern
+            backgroundIsArtwork = false
             if let media {
                 backgroundURL = media
+                backgroundIsPreview = false
+                theme.hasBackgroundMedia = true
+            } else if let artwork {
+                // skin 自带的线稿/插画优先于网格和截图，保留作者真正想放的主体。
+                backgroundURL = artwork
+                backgroundIsPreview = false
+                backgroundIsArtwork = true
+                backgroundPattern = nil
+                theme.hasBackgroundMedia = true
+            } else if pattern != nil {
+                // patches.css 里的网格/纹理直接用 Canvas 画，胜过模糊的截图背景。
+                backgroundURL = nil
                 backgroundIsPreview = false
                 theme.hasBackgroundMedia = true
             } else if let preview, skin.patchesURL != nil || tokens.count < 8 {
@@ -211,5 +231,71 @@ final class SkinManager: ObservableObject {
         path.split(separator: "/").map {
             String($0).addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? String($0)
         }.joined(separator: "/")
+    }
+}
+
+
+struct SkinPattern {
+    var color: CSSColor
+    var spacing: CGFloat
+    var majorSpacing: CGFloat?
+
+    static func parse(patches: URL?) -> SkinPattern? {
+        guard let patches, let css = try? String(contentsOf: patches, encoding: .utf8) else { return nil }
+        let pattern = #"repeating-linear-gradient\(to (right|bottom),\s*(#[0-9a-fA-F]{6,8})\s+0\s+1px,\s*transparent\s+1px\s+([0-9.]+)px\)"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        let range = NSRange(css.startIndex..<css.endIndex, in: css)
+        var color: CSSColor?
+        var spaces: [CGFloat] = []
+        for match in regex.matches(in: css, range: range) {
+            guard match.numberOfRanges == 4,
+                  let colorRange = Range(match.range(at: 2), in: css),
+                  let spaceRange = Range(match.range(at: 3), in: css),
+                  let value = Double(css[spaceRange]),
+                  value >= 8 else { continue }
+            color = CSSColor(css: String(css[colorRange])) ?? color
+            spaces.append(CGFloat(value))
+        }
+        guard let color, let smallest = spaces.min() else { return nil }
+        let major = spaces.filter { $0 > smallest * 2 }.max()
+        return SkinPattern(color: color, spacing: smallest, majorSpacing: major)
+    }
+}
+
+
+/// 从皮肤目录里找作者真正提供的画面素材（线稿、插画、纹理），跳过 preview 截图与图标。
+enum SkinArtwork {
+    static func find(in directory: URL) -> URL? {
+        let keys: [URLResourceKey] = [.isRegularFileKey, .fileSizeKey]
+        guard let enumerator = FileManager.default.enumerator(
+            at: directory,
+            includingPropertiesForKeys: keys,
+            options: [.skipsHiddenFiles, .skipsPackageDescendants]
+        ) else { return nil }
+
+        var best: (URL, Int)?
+        for case let url as URL in enumerator {
+            guard let values = try? url.resourceValues(forKeys: Set(keys)),
+                  values.isRegularFile == true else { continue }
+            let ext = url.pathExtension.lowercased()
+            guard ["png", "jpg", "jpeg", "webp"].contains(ext) else { continue }
+            let relative = url.path.replacingOccurrences(of: directory.path + "/", with: "").lowercased()
+            guard !relative.hasPrefix("preview/"), !relative.hasPrefix("previews/") else { continue }
+            let name = url.deletingPathExtension().lastPathComponent.lowercased()
+            guard !name.contains("icon"), !name.contains("logo"), !name.contains("favicon") else { continue }
+
+            var score = 0
+            if name.contains("line") { score += 8 }
+            if name.contains("art") || name.contains("hero") || name.contains("illustration") { score += 6 }
+            if name.contains("character") || name.contains("figure") { score += 5 }
+            if name.contains("bg") || name.contains("background") || name.contains("texture") || name.contains("pattern") { score += 4 }
+            if name.contains("fill") { score -= 3 }
+            if ext == "png" || ext == "webp" { score += 2 }
+            score += min(5, (values.fileSize ?? 0) / 200_000)
+            if score > (best?.1 ?? 0) {
+                best = (url, score)
+            }
+        }
+        return best?.0
     }
 }

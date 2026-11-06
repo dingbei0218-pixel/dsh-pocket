@@ -4,6 +4,7 @@
 public struct DSHConfig: Codable, Sendable, Equatable {
     public var model: String
     public var baseURL: String
+    public var reasoningEffort: String
     public var temperature: Double?
     public var maxTokens: Int?
     /// safe / review / default / danger（对齐 dsh-go permission presets）
@@ -18,6 +19,7 @@ public struct DSHConfig: Codable, Sendable, Equatable {
     public init(
         model: String = "deepseek-chat",
         baseURL: String = "https://api.deepseek.com",
+        reasoningEffort: String = "",
         temperature: Double? = nil,
         maxTokens: Int? = nil,
         permissionPreset: String = "default",
@@ -30,6 +32,7 @@ public struct DSHConfig: Codable, Sendable, Equatable {
     ) {
         self.model = model
         self.baseURL = baseURL
+        self.reasoningEffort = reasoningEffort
         self.temperature = temperature
         self.maxTokens = maxTokens
         self.permissionPreset = permissionPreset
@@ -67,6 +70,7 @@ public struct DSHConfig: Codable, Sendable, Equatable {
             baseURL: url,
             model: model,
             apiKey: apiKey,
+            reasoningEffort: reasoningEffort.isEmpty ? nil : reasoningEffort,
             temperature: temperature,
             maxTokens: maxTokens
         ))

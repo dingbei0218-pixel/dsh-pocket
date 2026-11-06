@@ -126,17 +126,39 @@ struct SettingsView: View {
                             .foregroundStyle(connectionTest.hasPrefix("官方接口可用") ? theme.success : theme.warning)
                     }
 
-                    labelled("模型 / 推理等级") {
-                        Picker("模型", selection: $draft.model) {
-                            Text("Chat · 快速").tag("deepseek-chat")
-                            Text("Reasoner · 深度").tag("deepseek-reasoner")
+                    labelled("模型") {
+                        HStack(spacing: 8) {
+                            Picker("模型", selection: $draft.model) {
+                                ForEach(model.availableModels, id: \.self) { id in
+                                    Text(model.modelLabel(id)).tag(id)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            .labelsHidden()
+                            Button {
+                                Task { await model.refreshModels() }
+                            } label: {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundStyle(theme.textTertiary)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .pickerStyle(.segmented)
-                        .labelsHidden()
                         TextField("自定义模型 ID（可选）", text: $draft.model)
                             .font(.system(size: 11, design: .monospaced))
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
+                    }
+
+                    labelled("推理等级") {
+                        Picker("推理等级", selection: $draft.reasoningEffort) {
+                            Text("默认").tag("")
+                            ForEach(["off", "minimal", "low", "medium", "high", "xhigh", "max"], id: \.self) { level in
+                                Text(level.capitalized).tag(level)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .labelsHidden()
                     }
                     labelled("Base URL") {
                         TextField("https://api.deepseek.com", text: $draft.baseURL)

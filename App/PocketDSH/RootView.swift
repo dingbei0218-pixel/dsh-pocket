@@ -117,15 +117,27 @@ struct AppBackground: View {
         GeometryReader { proxy in
             ZStack {
                 theme.background
+                if let pattern = skins.backgroundPattern {
+                    SkinGridView(pattern: pattern)
+                }
                 if let image = skins.backgroundImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: proxy.size.width, height: proxy.size.height)
-                        .clipped()
-                        .blur(radius: skins.backgroundIsPreview ? 10 : 0)
-                        .opacity(skins.backgroundIsPreview ? 0.68 : 0.72)
-                        .overlay(theme.background.opacity(skins.backgroundIsPreview ? 0.42 : 0.35))
+                    if skins.backgroundIsArtwork {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .center)
+                            .opacity(0.38)
+                            .overlay(theme.background.opacity(0.18))
+                    } else {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: proxy.size.width, height: proxy.size.height)
+                            .clipped()
+                            .blur(radius: skins.backgroundIsPreview ? 10 : 0)
+                            .opacity(skins.backgroundIsPreview ? 0.68 : 0.72)
+                            .overlay(theme.background.opacity(skins.backgroundIsPreview ? 0.42 : 0.35))
+                    }
                 }
                 RadialGradient(
                     colors: [theme.accent.opacity(0.07), .clear],
@@ -554,5 +566,40 @@ struct DSHMark: View {
                 .rotationEffect(.degrees(180))
         }
         .frame(width: size, height: size)
+    }
+}
+
+
+private struct SkinGridView: View {
+    let pattern: SkinPattern
+
+    var body: some View {
+        Canvas { context, size in
+            var path = Path()
+            let spacing = max(8, pattern.spacing)
+            for x in stride(from: 0, through: size.width, by: spacing) {
+                path.move(to: CGPoint(x: x, y: 0))
+                path.addLine(to: CGPoint(x: x, y: size.height))
+            }
+            for y in stride(from: 0, through: size.height, by: spacing) {
+                path.move(to: CGPoint(x: 0, y: y))
+                path.addLine(to: CGPoint(x: size.width, y: y))
+            }
+            context.stroke(path, with: .color(pattern.color.color.opacity(0.55)), lineWidth: 0.5)
+            if let major = pattern.majorSpacing, major > spacing * 2 {
+                var majorPath = Path()
+                for x in stride(from: 0, through: size.width, by: major) {
+                    majorPath.move(to: CGPoint(x: x, y: 0))
+                    majorPath.addLine(to: CGPoint(x: x, y: size.height))
+                }
+                for y in stride(from: 0, through: size.height, by: major) {
+                    majorPath.move(to: CGPoint(x: 0, y: y))
+                    majorPath.addLine(to: CGPoint(x: size.width, y: y))
+                }
+                context.stroke(majorPath, with: .color(pattern.color.color.opacity(0.8)), lineWidth: 0.7)
+            }
+        }
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
     }
 }

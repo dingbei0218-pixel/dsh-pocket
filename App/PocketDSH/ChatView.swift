@@ -780,15 +780,41 @@ struct ComposerView: View {
                     .contentShape(Rectangle())
                 }
 
-                Picker("模型", selection: $model.config.model) {
-                    Text("Chat · 快速").tag("deepseek-chat")
-                    Text("Reasoner · 深度").tag("deepseek-reasoner")
+                Menu {
+                    Section("模型") {
+                        ForEach(model.availableModels, id: \.self) { id in
+                            Button {
+                                model.config.model = id
+                            } label: {
+                                Label(model.modelLabel(id), systemImage: model.config.model == id ? "checkmark" : "cpu")
+                            }
+                        }
+                    }
+                    Section("推理等级") {
+                        Button {
+                            model.config.reasoningEffort = ""
+                        } label: {
+                            Label("默认", systemImage: model.config.reasoningEffort.isEmpty ? "checkmark" : "circle")
+                        }
+                        ForEach(["off", "minimal", "low", "medium", "high", "xhigh", "max"], id: \.self) { level in
+                            Button {
+                                model.config.reasoningEffort = level
+                            } label: {
+                                Label(level.capitalized, systemImage: model.config.reasoningEffort == level ? "checkmark" : "circle")
+                            }
+                        }
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "cpu").font(.system(size: 8.5))
+                        Text("\(model.modelDisplayName) · \(model.reasoningDisplayName)")
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .lineLimit(1)
+                        Image(systemName: "chevron.down").font(.system(size: 7, weight: .semibold))
+                    }
+                    .foregroundStyle(theme.textTertiary)
+                    .contentShape(Rectangle())
                 }
-                .pickerStyle(.menu)
-                .labelsHidden()
-                .font(.system(size: 10, weight: .medium))
-                .tint(theme.textTertiary)
-                .contentShape(Rectangle())
 
                 Spacer()
 

@@ -22,6 +22,9 @@ final class AppModel: ObservableObject {
         didSet { persistConfig() }
     }
     @Published private(set) var hasAPIKey = false
+    @Published private(set) var availableModels: [String] = [
+        "deepseek-v4-flash", "deepseek-flash", "deepseek-chat", "deepseek-reasoner",
+    ]
 
     let approvals = ApprovalBroker()
 
@@ -63,6 +66,7 @@ final class AppModel: ObservableObject {
 
     func bootstrap() async {
         hasAPIKey = (await keyStore.apiKey())?.isEmpty == false
+        if hasAPIKey { await refreshModels() }
         await refreshSessions()
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-demo") {
@@ -95,12 +99,43 @@ final class AppModel: ObservableObject {
         }
     }
 
-    var modelDisplayName: String {
-        switch config.model {
+    var modelDisplayName: String { modelLabel(config.model) }
+
+    func modelLabel(_ id: String) -> String {
+        if id.localizedCaseInsensitiveContains("flash") { return "DeepSeek-V4.1-Flash" }
+        switch id {
         case "deepseek-chat": return "DeepSeek Chat"
         case "deepseek-reasoner": return "DeepSeek Reasoner"
-        default: return config.model
+        default: return id
         }
+    }
+
+    var reasoningDisplayName: String {
+        guard !config.reasoningEffort.isEmpty else { return "默认" }
+        return config.reasoningEffort.capitalized
+    }
+
+    func refreshModels() async {
+        guard let key = await keyStore.apiKey(), !key.isEmpty,
+              var url = URL(string: config.baseURL) else { return }
+        url.appendPathComponent("models")
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 15
+        request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+        guard let (data, response) = try? await URLSession.shared.data(for: request),
+              let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else { return }
+        struct Models: Decodable {
+            struct Item: Decodable { let id: String }
+            let data: [Item]
+        }
+        guard let models = try? JSONDecoder().decode(Models.self, from: data) else { return }
+        let ids = models.data.map(\.id).filter { !$0.isEmpty }
+        guard !ids.isEmpty else { return }
+        var merged = ids
+        for model in availableModels where !merged.contains(model) {
+            merged.append(model)
+        }
+        availableModels = merged
     }
 
     var permissionDisplayName: String {

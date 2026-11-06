@@ -84,6 +84,24 @@ actor SkinStore {
         }
     }
 
+    func importFolder(_ source: URL) throws -> InstalledSkin {
+        try ensureRoot()
+        let base = Self.safeID(source.lastPathComponent)
+        var destination = root.appendingPathComponent(base, isDirectory: true)
+        if FileManager.default.fileExists(atPath: destination.path) {
+            destination = root.appendingPathComponent("\(base)-\(Int(Date().timeIntervalSince1970))", isDirectory: true)
+        }
+        try FileManager.default.copyItem(at: source, to: destination)
+        let manifestURL = destination.appendingPathComponent("skin.json")
+        guard let data = try? Data(contentsOf: manifestURL),
+              let manifest = try? JSONDecoder().decode(SkinManifest.self, from: data),
+              manifest.skinManifestVersion == 2 else {
+            try? FileManager.default.removeItem(at: destination)
+            throw SkinError.invalidManifest
+        }
+        return InstalledSkin(manifest: manifest, directory: destination)
+    }
+
     func remove(_ id: String) throws {
         let url = directory(for: id)
         guard FileManager.default.fileExists(atPath: url.path) else { return }

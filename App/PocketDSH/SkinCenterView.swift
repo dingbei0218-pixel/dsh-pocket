@@ -1,5 +1,6 @@
 import SwiftUI
 import Foundation
+import UniformTypeIdentifiers
 
 /// 皮肤中心：已安装皮肤 + 从 Git 仓库同步 + 一键安装/应用。
 struct SkinCenterView: View {
@@ -10,6 +11,8 @@ struct SkinCenterView: View {
     @State private var showToken = false
     @State private var didAutoSync = false
     @State private var query = ""
+    @State private var selection: SkinSelection?
+    @State private var showImporter = false
 
     private let columns = [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
 
@@ -33,13 +36,23 @@ struct SkinCenterView: View {
                     Button("关闭") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button {
-                        Task { await skins.sync() }
+                    Menu {
+                        Button {
+                            Task { await skins.sync() }
+                        } label: {
+                            Label("同步仓库", systemImage: "arrow.clockwise")
+                        }
+                        .disabled(skins.isSyncing)
+                        Button {
+                            showImporter = true
+                        } label: {
+                            Label("从文件导入皮肤", systemImage: "folder.badge.plus")
+                        }
                     } label: {
                         if skins.isSyncing {
                             ProgressView().controlSize(.small)
                         } else {
-                            Image(systemName: "arrow.clockwise")
+                            Image(systemName: "ellipsis.circle")
                         }
                     }
                     .disabled(skins.isSyncing)
@@ -52,6 +65,20 @@ struct SkinCenterView: View {
                     guard !didAutoSync, skins.remote.isEmpty else { return }
                     didAutoSync = true
                     await skins.sync()
+                }
+            }
+            .sheet(item: $selection) { value in
+                SkinDetailView(selection: value)
+                    .environmentObject(skins)
+            }
+            .fileImporter(isPresented: $showImporter, allowedContentTypes: [.folder], allowsMultipleSelection: false) { result in
+                switch result {
+                case .success(let urls):
+                    if let url = urls.first {
+                        Task { await skins.importFolder(url) }
+                    }
+                case .failure(let error):
+                    skins.errorMessage = error.localizedDescription
                 }
             }
             .alert("皮肤中心", isPresented: Binding(
@@ -184,7 +211,7 @@ struct SkinCenterView: View {
     private func installedCard(_ skin: InstalledSkin) -> some View {
         Button {
             Haptics.tap()
-            skins.apply(skin)
+            selection = .installed(skin)
         } label: {
             VStack(alignment: .leading, spacing: 0) {
                 ZStack {
@@ -363,6 +390,8 @@ struct SkinCenterView: View {
         .padding(8)
         .background(theme.surface.opacity(0.5), in: RoundedRectangle(cornerRadius: 9))
         .overlay(RoundedRectangle(cornerRadius: 9).strokeBorder(theme.stroke, lineWidth: 1))
+        .contentShape(Rectangle())
+        .onTapGesture { selection = .remote(skin) }
     }
 
     private func sectionTitle(_ title: String, subtitle: String) -> some View {
@@ -408,6 +437,260 @@ private struct SkinPreviewImage: View {
             Image(systemName: "paintpalette")
                 .font(.system(size: 15, weight: .light))
                 .foregroundStyle(theme.textTertiary)
+        }
+    }
+}
+
+
+enum SkinSelection: Identifiable {
+    case remote(RemoteSkin)
+    case installed(InstalledSkin)
+
+    var id: String {
+        switch self {
+        case .remote(let skin): return "remote-\(skin.id)"
+        case .installed(let skin): return "installed-\(skin.id)"
+        }
+    }
+}
+
+struct SkinDetailView: View {
+    @EnvironmentObject private var skins: SkinManager
+    @Environment(\.appTheme) private var theme
+    @Environment(\.dismiss) private var dismiss
+    let selection: SkinSelection
+    @State private var working = false
+
+    private var remote: RemoteSkin? {
+        if case .remote(let skin) = selection { return skin }
+        return nil
+    }
+
+    private var installed: InstalledSkin? {
+        switch selection {
+        case .installed(let skin): return skin
+        case .remote(let skin): return skins.installed.first { $0.id == skin.id }
+        }
+    }
+
+    private var manifest: SkinManifest {
+        if let installed { return installed.manifest }
+        return remote!.manifest
+    }
+
+    private var previewURL: URL? {
+        if let installed { return skins.previewURL(for: installed) }
+        if let remote { return skins.previewURL(for: remote) }
+        return nil
+    }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    preview
+                    header
+                    if let description = manifest.description, !description.isEmpty {
+                        Text(description)
+                            .font(.system(size: 12))
+                            .foregroundStyle(theme.textSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    if let tags = manifest.tags, !tags.isEmpty {
+                        tagsView(tags)
+                    }
+                    paletteView
+                    detectionView
+                    actions
+                }
+                .padding(16)
+            }
+            .scrollContentBackground(.hidden)
+            .background(theme.background)
+            .navigationTitle(manifest.name)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("关闭") { dismiss() }
+                }
+            }
+            .preferredColorScheme(.dark)
+        }
+    }
+
+    private var preview: some View {
+        ZStack {
+            theme.surfaceHover
+            if let previewURL {
+                AsyncImage(url: previewURL) { phase in
+                    if let image = phase.image {
+                        image.resizable().scaledToFill()
+                    } else {
+                        ProgressView().controlSize(.small)
+                    }
+                }
+            }
+        }
+        .frame(height: 210)
+        .clipped()
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(theme.stroke, lineWidth: 1))
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(manifest.name)
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .foregroundStyle(theme.textPrimary)
+                Spacer()
+                Text("v\(manifest.version)")
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(theme.textTertiary)
+            }
+            Text("\(manifest.author) · \(manifest.nameEn)")
+                .font(.system(size: 11))
+                .foregroundStyle(theme.textTertiary)
+            if let tagline = manifest.tagline, !tagline.isEmpty {
+                Text(tagline)
+                    .font(.system(size: 12.5))
+                    .foregroundStyle(theme.textSecondary)
+            }
+        }
+    }
+
+    private func tagsView(_ tags: [String]) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(tags, id: \.self) { tag in
+                    Text(tag)
+                        .font(.system(size: 9.5, weight: .medium, design: .monospaced))
+                        .foregroundStyle(theme.textTertiary)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 3)
+                        .background(theme.surface, in: Capsule())
+                }
+            }
+        }
+    }
+
+    private var paletteView: some View {
+        let colors = palette
+        return VStack(alignment: .leading, spacing: 7) {
+            Text("色板")
+                .font(.system(size: 10.5, weight: .semibold))
+                .foregroundStyle(theme.textTertiary)
+            if colors.isEmpty {
+                Text("安装后可读取 skin.css 的 token 色板")
+                    .font(.system(size: 10.5))
+                    .foregroundStyle(theme.textTertiary)
+            } else {
+                HStack(spacing: 7) {
+                    ForEach(colors, id: \.0) { name, color in
+                        RoundedRectangle(cornerRadius: 5)
+                            .fill(color.color)
+                            .frame(height: 28)
+                            .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(theme.stroke, lineWidth: 1))
+                            .help(name)
+                    }
+                }
+            }
+        }
+    }
+
+    private var palette: [(String, CSSColor)] {
+        guard let installed,
+              let css = try? String(contentsOf: installed.cssURL, encoding: .utf8) else { return [] }
+        let tokens = SkinCSS.tokens(from: css)
+        let keys = [
+            "--dsw-alias-brand-primary", "--dsw-alias-accent", "--dsw-alias-bg-base",
+            "--dsw-alias-bg-layer-1", "--dsw-alias-bg-layer-2", "--dsw-alias-label-primary",
+            "--dsw-alias-label-secondary", "--dsw-alias-border-l3",
+        ]
+        var seen = Set<String>()
+        return keys.compactMap { key in
+            guard let raw = tokens[key], let color = CSSColor(css: raw), seen.insert(raw).inserted else { return nil }
+            return (key, color)
+        }
+    }
+
+    private var detectionView: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text("原生渲染")
+                .font(.system(size: 10.5, weight: .semibold))
+                .foregroundStyle(theme.textTertiary)
+            if let installed {
+                if SkinArtwork.find(in: installed.directory) != nil {
+                    Label("已识别皮肤自带的线稿 / 插画", systemImage: "photo")
+                } else if SkinPattern.parse(patches: installed.patchesURL) != nil {
+                    Label("已从 patches.css 识别网格纹理", systemImage: "grid")
+                } else if installed.manifest.darkBackground != nil {
+                    Label("使用 backgroundMedia 背景", systemImage: "rectangle.on.rectangle")
+                } else {
+                    Label("仅应用颜色 token", systemImage: "paintpalette")
+                }
+            } else {
+                Label("安装后自动检测插画 / 网格 / backgroundMedia", systemImage: "wand.and.stars")
+            }
+        }
+        .font(.system(size: 10.5))
+        .foregroundStyle(theme.textSecondary)
+    }
+
+    private var actions: some View {
+        VStack(spacing: 10) {
+            if let installed {
+                if skins.activeID == installed.id {
+                    Label("当前正在使用", systemImage: "checkmark.circle.fill")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(theme.success)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 42)
+                        .background(theme.surface, in: RoundedRectangle(cornerRadius: 10))
+                } else {
+                    Button {
+                        Haptics.tap()
+                        skins.apply(installed)
+                        dismiss()
+                    } label: {
+                        Text("应用这款皮肤")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(theme.onAccent)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 42)
+                            .background(theme.accent, in: RoundedRectangle(cornerRadius: 10))
+                    }
+                    .buttonStyle(.plain)
+                }
+                Button(role: .destructive) {
+                    skins.remove(installed)
+                    dismiss()
+                } label: {
+                    Text("删除皮肤")
+                        .font(.system(size: 11.5))
+                        .foregroundStyle(theme.danger)
+                }
+            } else if let remote {
+                Button {
+                    working = true
+                    Task {
+                        await skins.install(remote)
+                        working = false
+                    }
+                } label: {
+                    HStack(spacing: 6) {
+                        if working { ProgressView().controlSize(.small) }
+                        Text(working ? "安装中…" : "安装并应用")
+                    }
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(theme.onAccent)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 42)
+                    .background(theme.accent, in: RoundedRectangle(cornerRadius: 10))
+                }
+                .buttonStyle(.plain)
+                .disabled(working || skins.installingID != nil)
+            }
         }
     }
 }

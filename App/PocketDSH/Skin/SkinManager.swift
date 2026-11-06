@@ -100,6 +100,19 @@ final class SkinManager: ObservableObject {
         Task { await store.setActive(skin.id) }
     }
 
+    func importFolder(_ url: URL) async {
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+        do {
+            let skin = try await store.importFolder(url)
+            await reload()
+            apply(skin)
+            statusMessage = "已导入 \(skin.manifest.name)"
+        } catch {
+            errorMessage = userFacing(error)
+        }
+    }
+
     func remove(_ skin: InstalledSkin) {
         Task {
             try? await store.remove(skin.id)

@@ -11,6 +11,8 @@ struct SettingsView: View {
     @State private var apiKey = ""
     @State private var showKey = false
     @State private var showSkinCenter = false
+    @State private var testing = false
+    @State private var connectionTest: String?
 
     private let presets: [(String, String)] = [
         ("safe", "只读 · 危险操作逐次确认"),
@@ -93,18 +95,46 @@ struct SettingsView: View {
                         }
                     }
 
-                    Link(destination: URL(string: "https://platform.deepseek.com/api_keys")!) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "arrow.up.right.square")
-                            Text("获取 API Key")
+                    HStack(spacing: 14) {
+                        Link(destination: URL(string: "https://platform.deepseek.com/api_keys")!) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.up.right.square")
+                                Text("获取 API Key")
+                            }
+                            .font(.system(size: 11))
+                            .foregroundStyle(theme.accent)
                         }
-                        .font(.system(size: 11))
-                        .foregroundStyle(theme.accent)
+
+                        Button {
+                            testConnection()
+                        } label: {
+                            HStack(spacing: 4) {
+                                if testing { ProgressView().controlSize(.mini) }
+                                else { Image(systemName: "bolt.horizontal.circle") }
+                                Text(testing ? "测试中…" : "测试连接")
+                            }
+                            .font(.system(size: 11))
+                            .foregroundStyle(theme.textSecondary)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(testing)
                     }
 
-                    labelled("模型") {
-                        TextField("deepseek-chat", text: $draft.model)
-                            .font(.system(size: 12, design: .monospaced))
+                    if let connectionTest {
+                        Text(connectionTest)
+                            .font(.system(size: 10.5))
+                            .foregroundStyle(connectionTest.hasPrefix("官方接口可用") ? theme.success : theme.warning)
+                    }
+
+                    labelled("模型 / 推理等级") {
+                        Picker("模型", selection: $draft.model) {
+                            Text("Chat · 快速").tag("deepseek-chat")
+                            Text("Reasoner · 深度").tag("deepseek-reasoner")
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        TextField("自定义模型 ID（可选）", text: $draft.model)
+                            .font(.system(size: 11, design: .monospaced))
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                     }
@@ -182,6 +212,54 @@ struct SettingsView: View {
                     .environmentObject(skins)
             }
             .preferredColorScheme(.dark)
+        }
+    }
+
+    private func testConnection() {
+        testing = true
+        connectionTest = nil
+        Task {
+            defer { testing = false }
+            do {
+                let key = apiKey.isEmpty ? await model.loadAPIKey() : apiKey
+                guard !key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                    connectionTest = "连接失败：还没有填写 API Key"
+                    return
+                }
+                guard var base = URL(string: draft.baseURL.trimmingCharacters(in: .whitespacesAndNewlines)) else {
+                    connectionTest = "连接失败：Base URL 格式不对"
+                    return
+                }
+                base.appendPathComponent("chat/completions")
+                var request = URLRequest(url: base)
+                request.httpMethod = "POST"
+                request.timeoutInterval = 30
+                request.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                let body: [String: Any] = [
+                    "model": draft.model,
+                    "messages": [["role": "user", "content": "hi"]],
+                    "max_tokens": 1,
+                    "stream": false
+                ]
+                request.httpBody = try JSONSerialization.data(withJSONObject: body)
+                let (data, response) = try await URLSession.shared.data(for: request)
+                let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+                guard (200..<300).contains(status) else {
+                    let text = String(data: data, encoding: .utf8) ?? ""
+                    connectionTest = "连接失败：HTTP \(status) \(text.prefix(120))"
+                    return
+                }
+                struct Probe: Decodable { let model: String? }
+                let probe = try? JSONDecoder().decode(Probe.self, from: data)
+                if let backend = probe?.model, !backend.isEmpty {
+                    connectionTest = "官方接口可用 · 后端实际模型：\(backend)"
+                } else {
+                    connectionTest = "接口可用，但响应里没有 model 字段"
+                }
+            } catch {
+                connectionTest = "连接失败：\(error.localizedDescription)"
+            }
         }
     }
 

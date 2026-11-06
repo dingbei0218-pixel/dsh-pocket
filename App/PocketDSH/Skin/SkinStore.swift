@@ -16,6 +16,11 @@ struct InstalledSkin: Identifiable, Hashable {
         directory.appendingPathComponent(manifest.contributes.stylesheet)
     }
 
+    var patchesURL: URL? {
+        guard let patches = manifest.contributes.patches, !patches.isEmpty else { return nil }
+        return directory.appendingPathComponent(patches)
+    }
+
     var backgroundURL: URL? {
         guard let layer = manifest.darkBackground else { return nil }
         // iOS 端不做视频解码：视频皮肤用预览图作为静态背景，保留氛围。

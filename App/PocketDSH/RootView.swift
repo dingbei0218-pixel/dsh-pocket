@@ -123,8 +123,9 @@ struct AppBackground: View {
                         .scaledToFill()
                         .frame(width: proxy.size.width, height: proxy.size.height)
                         .clipped()
-                        .opacity(0.72)
-                        .overlay(theme.background.opacity(0.35))
+                        .blur(radius: skins.backgroundIsPreview ? 10 : 0)
+                        .opacity(skins.backgroundIsPreview ? 0.68 : 0.72)
+                        .overlay(theme.background.opacity(skins.backgroundIsPreview ? 0.42 : 0.35))
                 }
                 RadialGradient(
                     colors: [theme.accent.opacity(0.07), .clear],

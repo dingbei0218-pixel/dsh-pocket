@@ -777,21 +777,18 @@ struct ComposerView: View {
                             .font(.system(size: 7, weight: .semibold))
                     }
                     .foregroundStyle(theme.textTertiary)
+                    .contentShape(Rectangle())
                 }
 
-                Menu {
-                    ForEach(["deepseek-chat", "deepseek-reasoner"], id: \.self) { name in
-                        Button(name) { model.config.model = name }
-                    }
-                } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: "cpu").font(.system(size: 8.5))
-                        Text(model.modelDisplayName)
-                            .font(.system(size: 10, weight: .medium, design: .rounded))
-                        Image(systemName: "chevron.down").font(.system(size: 7, weight: .semibold))
-                    }
-                    .foregroundStyle(theme.textTertiary)
+                Picker("模型", selection: $model.config.model) {
+                    Text("Chat · 快速").tag("deepseek-chat")
+                    Text("Reasoner · 深度").tag("deepseek-reasoner")
                 }
+                .pickerStyle(.menu)
+                .labelsHidden()
+                .font(.system(size: 10, weight: .medium))
+                .tint(theme.textTertiary)
+                .contentShape(Rectangle())
 
                 Spacer()
 

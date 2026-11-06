@@ -17,6 +17,7 @@ final class SkinManager: ObservableObject {
     @Published private(set) var isSyncing = false
     @Published private(set) var installingID: String?
     @Published private(set) var statusMessage: String?
+    @Published private(set) var backgroundIsPreview = false
     @Published var errorMessage: String?
 
     @Published var repositoryURL: String {
@@ -82,6 +83,7 @@ final class SkinManager: ObservableObject {
     func applyDefault() {
         theme = .dsh
         backgroundURL = nil
+        backgroundIsPreview = false
         #if canImport(UIKit)
         backgroundImage = nil
         #endif
@@ -106,12 +108,23 @@ final class SkinManager: ObservableObject {
             let css = try String(contentsOf: skin.cssURL, encoding: .utf8)
             let tokens = SkinCSS.tokens(from: css)
             theme = AppTheme(manifest: skin.manifest, tokens: tokens)
-            // token 很少的皮肤主要靠 patches.css 改样式；原生端用预览图保留氛围。
-            if tokens.count < 8, let preview = skin.previewURL, FileManager.default.fileExists(atPath: preview.path) {
+            // 1) manifest 里声明了 backgroundMedia：直接用它；
+            // 2) 没有 backgroundMedia 但有 patches.css：原生端不能执行 CSS 选择器，
+            //    用预览图做低透明度背景，至少保留皮肤自带的画面/纹理氛围；
+            // 3) token 很少的皮肤也走预览图兜底。
+            let media = skin.backgroundURL.flatMap { FileManager.default.fileExists(atPath: $0.path) ? $0 : nil }
+            let preview = skin.previewURL.flatMap { FileManager.default.fileExists(atPath: $0.path) ? $0 : nil }
+            if let media {
+                backgroundURL = media
+                backgroundIsPreview = false
+                theme.hasBackgroundMedia = true
+            } else if let preview, skin.patchesURL != nil || tokens.count < 8 {
                 backgroundURL = preview
+                backgroundIsPreview = true
                 theme.hasBackgroundMedia = true
             } else {
-                backgroundURL = skin.backgroundURL.flatMap { FileManager.default.fileExists(atPath: $0.path) ? $0 : nil }
+                backgroundURL = nil
+                backgroundIsPreview = false
             }
             #if canImport(UIKit)
             backgroundImage = backgroundURL.flatMap { UIImage(contentsOfFile: $0.path) }

@@ -1,4 +1,4 @@
-﻿# DSH Pocket · 苹果版 dsh-go
+# DSH Pocket · 苹果版 dsh-go
 
 > 把 [JopenChen/dsh-go](https://github.com/JopenChen/dsh-go) 的 DeepSeek Harness Agent 内核，用 Swift 6 原生重写为可在 iPhone / iPad / Mac 上运行的版本。
 >
@@ -22,6 +22,13 @@
 
 > 说明：本仓库在 Windows 上完成核心开发与验证；SwiftUI 只能在 Apple 平台编译，
 > 因此 App 层交付的是**完整源码 + XcodeGen 工程描述**，在 Mac 上一条命令生成 `.xcodeproj`。
+
+## 界面预览
+
+![PocketDSH UI preview](docs/preview.png)
+
+> 这是按 SwiftUI 信息架构绘制的 HTML 设计稿（`docs/preview.html`），
+> 用于在没有 Mac 的环境里预览布局；真机界面与交互以 `App/PocketDSH/` 源码为准。
 
 ---
 

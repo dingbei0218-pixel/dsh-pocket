@@ -37,7 +37,7 @@ struct SettingsView: View {
                         HStack(spacing: 10) {
                             SkinSwatch(theme: skins.theme)
                             VStack(alignment: .leading, spacing: 1) {
-                                Text("皮肤中心")
+                                Text("插件库")
                                     .font(.system(size: 13, weight: .medium))
                                 Text(skins.theme.id == "dsh-default" ? "DSH 默认" : skins.theme.name)
                                     .font(.system(size: 11))

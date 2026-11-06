@@ -11,6 +11,7 @@ struct SkinCenterView: View {
     @State private var showToken = false
     @State private var didAutoSync = false
     @State private var query = ""
+    @State private var selectedTag = ""
     @State private var selection: SkinSelection?
     @State private var showImporter = false
 
@@ -22,6 +23,7 @@ struct SkinCenterView: View {
                 VStack(alignment: .leading, spacing: 20) {
                     gitSection
                     searchField
+                    tagFilter
                     installedSection
                     remoteSection
                 }
@@ -29,7 +31,7 @@ struct SkinCenterView: View {
             }
             .scrollContentBackground(.hidden)
             .background(theme.background)
-            .navigationTitle("皮肤中心")
+            .navigationTitle("插件库")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -156,7 +158,7 @@ struct SkinCenterView: View {
 
     private var installedSection: some View {
         VStack(alignment: .leading, spacing: 9) {
-            sectionTitle("已安装", subtitle: "\(skins.installed.count + 1) 款")
+            sectionTitle("已安装插件", subtitle: "\(skins.installed.count + 1) 款")
             LazyVGrid(columns: columns, spacing: 10) {
                 defaultCard
                 ForEach(skins.installed) { skin in
@@ -269,13 +271,15 @@ struct SkinCenterView: View {
 
     private var filteredRemote: [RemoteSkin] {
         let value = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !value.isEmpty else { return skins.remote }
-        return skins.remote.filter {
-            $0.manifest.name.localizedCaseInsensitiveContains(value) ||
-            $0.manifest.nameEn.localizedCaseInsensitiveContains(value) ||
-            ($0.manifest.tagline ?? "").localizedCaseInsensitiveContains(value) ||
-            $0.manifest.author.localizedCaseInsensitiveContains(value) ||
-            ($0.manifest.tags ?? []).contains { $0.localizedCaseInsensitiveContains(value) }
+        return skins.remote.filter { skin in
+            let matchesText = value.isEmpty ||
+                skin.manifest.name.localizedCaseInsensitiveContains(value) ||
+                skin.manifest.nameEn.localizedCaseInsensitiveContains(value) ||
+                (skin.manifest.tagline ?? "").localizedCaseInsensitiveContains(value) ||
+                skin.manifest.author.localizedCaseInsensitiveContains(value) ||
+                (skin.manifest.tags ?? []).contains { $0.localizedCaseInsensitiveContains(value) }
+            let matchesTag = selectedTag.isEmpty || (skin.manifest.tags ?? []).contains(selectedTag)
+            return matchesText && matchesTag
         }
     }
 
@@ -284,7 +288,7 @@ struct SkinCenterView: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 11))
                 .foregroundStyle(theme.textTertiary)
-            TextField("搜索皮肤 / 作者 / 标签", text: $query)
+            TextField("搜索插件 / 作者 / 标签", text: $query)
                 .textFieldStyle(.plain)
                 .font(.system(size: 12))
                 .textInputAutocapitalization(.never)
@@ -306,9 +310,46 @@ struct SkinCenterView: View {
         .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(theme.stroke, lineWidth: 1))
     }
 
+    private var availableTags: [String] {
+        var counts: [String: Int] = [:]
+        for skin in skins.remote {
+            for tag in skin.manifest.tags ?? [] { counts[tag, default: 0] += 1 }
+        }
+        return counts.sorted { $0.value == $1.value ? $0.key < $1.key : $0.value > $1.value }
+            .prefix(10)
+            .map(\.key)
+    }
+
+    private var tagFilter: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                tagChip("全部", value: "")
+                ForEach(availableTags, id: \.self) { tag in
+                    tagChip(tag, value: tag)
+                }
+            }
+        }
+    }
+
+    private func tagChip(_ label: String, value: String) -> some View {
+        Button {
+            selectedTag = value
+            Haptics.tap()
+        } label: {
+            Text(label)
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .foregroundStyle(selectedTag == value ? theme.onAccent : theme.textSecondary)
+                .padding(.horizontal, 9)
+                .frame(height: 25)
+                .background(selectedTag == value ? theme.accent : theme.surface, in: Capsule())
+                .overlay(Capsule().strokeBorder(selectedTag == value ? .clear : theme.stroke, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+
     private var remoteSection: some View {
         VStack(alignment: .leading, spacing: 9) {
-            sectionTitle("仓库里的皮肤", subtitle: skins.remote.isEmpty ? "点右上角刷新" : (query.isEmpty ? "\(skins.remote.count) 款" : "\(filteredRemote.count) / \(skins.remote.count) 款"))
+            sectionTitle("可安装插件", subtitle: skins.remote.isEmpty ? "点右上角刷新" : (query.isEmpty ? "\(skins.remote.count) 款" : "\(filteredRemote.count) / \(skins.remote.count) 款"))
             if skins.remote.isEmpty {
                 Text(skins.isSyncing ? "正在拉取仓库目录…" : "还没有同步。填入皮肤仓库地址后点「同步」。")
                     .font(.system(size: 11.5))
@@ -318,7 +359,7 @@ struct SkinCenterView: View {
                     .background(theme.surface.opacity(0.45), in: RoundedRectangle(cornerRadius: 9))
             } else {
                 if filteredRemote.isEmpty {
-                    Text("没有匹配「\(query)」的皮肤")
+                    Text("没有匹配「\(query)」的插件")
                         .font(.system(size: 11.5))
                         .foregroundStyle(theme.textTertiary)
                         .frame(maxWidth: .infinity, alignment: .leading)

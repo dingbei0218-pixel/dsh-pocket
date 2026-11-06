@@ -188,6 +188,25 @@ DEEPSEEK_API_KEY=test swift run dsh run "read hello.txt" \
 
 ---
 
+## 安装与签名
+
+仓库**不包含已签名的 ipa**。每个安装者用自己的 Apple ID 在本地签名：
+
+- Xcode + 免费 Apple ID：装到自己 iPhone，证书 7 天，到期重跑；
+- 未签名 ipa + AltStore / Sideloadly：本机签名，同样 7 天；
+- TestFlight / App Store：需要付费开发者账号。
+
+```bash
+./scripts/build-unsigned-ipa.sh   # 产出 build/PocketDSH-unsigned.ipa
+```
+
+详见 [安装到自己 iPhone](docs/INSTALL.md)。
+
+## 隐私
+
+没有遥测、没有账号系统、没有云端会话。API Key 只在本机 Keychain，会话与工作区只在本机沙箱；
+只有 DeepSeek API、用户主动触发的网页抓取、皮肤 Git 源会产生网络请求。仓库不含证书、密钥或作者个人信息。
+
 ## 许可证与致谢
 
 - 本移植遵循 MIT。原项目：`dsh-go` © 2026 JopenChen，MIT License。

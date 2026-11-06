@@ -14,9 +14,9 @@ struct RootView: View {
         }
         .tint(Theme.accent)
         .preferredColorScheme(.dark)
-        .overlay(alignment: .top) {
+        .overlay(alignment: .bottom) {
             ApprovalOverlay(broker: model.approvals)
-                .padding(.top, 14)
+                .padding(.bottom, 12)
         }
         .sheet(isPresented: $model.showSettings) {
             SettingsView()
@@ -24,9 +24,7 @@ struct RootView: View {
         }
         .sheet(isPresented: $model.showTodos) {
             TodoSheet(items: model.projection?.todos ?? [])
-                #if os(iOS)
                 .presentationDetents([.medium, .large])
-                #endif
         }
         .sheet(isPresented: $model.showGoal) {
             GoalSheet()

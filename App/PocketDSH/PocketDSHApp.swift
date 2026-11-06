@@ -9,11 +9,6 @@ struct PocketDSHApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(model)
-                .frame(minWidth: 760, minHeight: 520)
         }
-        #if os(macOS)
-        .windowStyle(.hiddenTitleBar)
-        .windowToolbarStyle(.unified)
-        #endif
     }
 }

@@ -1,4 +1,4 @@
-# 兼容性与能力矩阵
+﻿# 兼容性与能力矩阵
 
 图例：✅ 完成 · 🟡 部分/有意简化 · ⛔ 未实现 · ➖ 平台不适用
 
@@ -53,7 +53,7 @@
 |---|---|---|---|
 | read_file / write_file / edit_file / list_dir | 示例 | ✅ | 带工作区沙箱 |
 | glob / grep | ⛔ | ✅ | 纯 Swift 实现 |
-| shell | ✅ | 🟡 | 仅 macOS；iOS 编译期移除 |
+| shell | ✅ | ➖ | iOS 禁止子进程，编译期移除 |
 | web_fetch | ⛔ | ✅ | SSRF 私网拦截、HTML 转文本 |
 | todo_write | ✅ | ✅ | |
 | goal_* 6 个工具 | ✅ | ⛔ | UI 管理 goal；模型工具后续补 |
@@ -76,12 +76,11 @@
 | 能力 | 状态 |
 |---|---|
 | iOS 17 / iPadOS 17 | ✅ 源码 |
-| macOS 14 | ✅ 源码 |
 | 多窗口 / NavigationSplitView | ✅ |
 | Keychain | ✅ |
 | 深色主题 / 动态布局 | ✅ |
 | 后台继续流式 | 🟡 系统可能挂起；事件已落盘 |
-| App Store 沙箱 | 🟡 macOS 开发版关闭 Sandbox 以允许 shell |
+| App Store 沙箱 | ✅ iOS 容器沙箱 + 工作区二级沙箱 |
 
 ## 7. 与官方 DSH 的边界
 
@@ -90,3 +89,5 @@
 - 事件词汇表与官方 `packages/core/session` 同名，但官方新增字段/事件可能未覆盖；
 - 官方 `request/header` 的代际策略、Provider 路由、skills 注入顺序未完全复刻；
 - 会话文件可被 dsh-go 读取（格式版本 1），但**不保证**官方 DSH 直接加载（未在官方运行时验证）。
+
+

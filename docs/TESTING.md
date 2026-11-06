@@ -76,7 +76,7 @@ The file contains: hello from mock
 - 在 macOS 上执行：
 
 ```bash
-cd App && xcodegen generate && xcodebuild -scheme PocketDSH-macOS -destination 'platform=macOS' build
+cd App && xcodegen generate && xcodebuild -scheme PocketDSH -destination 'generic/platform=iOS Simulator' build
 ```
 
 ## 4. Windows 开发环境（可选，供复现）
@@ -97,4 +97,5 @@ cd App && xcodegen generate && xcodebuild -scheme PocketDSH-macOS -destination '
 - 修改不变量/修复逻辑时，跑 `SessionLogTests`；
 - 修改 Agent 请求组装时，跑 `AgentTests` 并检查第二轮 `messages` 的 role 序列；
 - 修改 SSE 解析时，跑一次 mock 端到端。
+
 

@@ -1,10 +1,6 @@
 import SwiftUI
 import DSHKit
-#if os(macOS)
-import AppKit
-#else
 import UIKit
-#endif
 
 // MARK: - Chat screen
 
@@ -34,12 +30,13 @@ struct ChatScreen: View {
             }
         }
         .toolbar {
-            #if os(macOS)
-            ToolbarItem(placement: .automatic) {
-                Text(model.projection?.displayTitle ?? "DSH Pocket")
-                    .font(.headline)
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    model.showSettings = true
+                } label: {
+                    Image(systemName: "gearshape")
+                }
             }
-            #endif
         }
     }
 }
@@ -76,9 +73,6 @@ private struct ChatHeader: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.small)
-            #if os(macOS)
-            .help("Set a goal")
-            #endif
             if !projection.todos.isEmpty {
                 Button {
                     model.showTodos = true
@@ -331,12 +325,7 @@ private struct CodeBlockView: View {
                     .foregroundStyle(.secondary)
                 Spacer()
                 Button {
-                    #if os(macOS)
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(code, forType: .string)
-                    #else
                     UIPasteboard.general.string = code
-                    #endif
                     copied = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { copied = false }
                 } label: {
@@ -590,7 +579,7 @@ struct ApprovalOverlay: View {
             .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(Theme.stroke, lineWidth: 1))
             .shadow(color: .black.opacity(0.4), radius: 24, y: 8)
             .padding(.horizontal, 18)
-            .transition(.move(edge: .top).combined(with: .opacity))
+            .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }
 }
@@ -653,7 +642,6 @@ struct GoalSheet: View {
             }
             .preferredColorScheme(.dark)
         }
-        .frame(minWidth: 380, minHeight: 360)
     }
 }
 
@@ -688,7 +676,6 @@ struct TodoSheet: View {
                 }
             }
         }
-        .frame(minWidth: 320, minHeight: 360)
     }
 
     private func symbol(_ status: TodoItem.Status) -> String {
@@ -707,3 +694,4 @@ struct TodoSheet: View {
         }
     }
 }
+

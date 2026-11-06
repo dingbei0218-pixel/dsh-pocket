@@ -40,9 +40,10 @@ final class AppModel: ObservableObject {
             config = .default
         }
 
-        let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-            ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support")
-        let root = support.appendingPathComponent("DSH", isDirectory: true)
+        // iOS：放在 Documents 下，用户可以在「文件」App 里直接查看/导入工作区文件。
+        let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+            ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Documents")
+        let root = documents.appendingPathComponent("DSH", isDirectory: true)
         workspace = root.appendingPathComponent("Workspace", isDirectory: true)
         store = SessionStore(root: root.appendingPathComponent("sessions", isDirectory: true))
 

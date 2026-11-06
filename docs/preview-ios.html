@@ -1,0 +1,144 @@
+﻿<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>PocketDSH — iPhone preview</title>
+<style>
+  :root{
+    --bg:#080c14; --panel:rgba(255,255,255,.055); --stroke:rgba(255,255,255,.10);
+    --accent:#52b8ff; --accent-soft:rgba(82,184,255,.16); --text:#e9effb; --muted:#8b97ad;
+    --green:#59d99a; --amber:#ffbd5c;
+  }
+  *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  html,body{width:390px;height:844px;margin:0;overflow:hidden}
+  body{
+    background:radial-gradient(500px 400px at 100% 0%, #142640 0%, transparent 60%),
+               radial-gradient(420px 360px at 0% 100%, #0e192b 0%, transparent 65%),
+               linear-gradient(160deg,#070a11,#0a101c 55%,#070a11);
+    color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC",sans-serif;
+    display:flex;flex-direction:column;position:relative;
+  }
+  .status{height:50px;padding:14px 24px 0;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;letter-spacing:.2px}
+  .status .right{display:flex;gap:6px;align-items:center;font-size:11px;color:#dbe6f7}
+  .bars{display:flex;gap:2px;align-items:flex-end}
+  .bars i{display:block;width:3px;background:#dbe6f7;border-radius:1px}
+  .bars i:nth-child(1){height:4px}.bars i:nth-child(2){height:6px}.bars i:nth-child(3){height:8px}.bars i:nth-child(4){height:10px}
+  .battery{width:20px;height:10px;border:1px solid #dbe6f7;border-radius:3px;position:relative;opacity:.9}
+  .battery:after{content:"";position:absolute;right:-3px;top:3px;width:2px;height:4px;background:#dbe6f7;border-radius:0 1px 1px 0}
+  .battery i{position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#dbe6f7;border-radius:1px}
+
+  .nav{height:52px;padding:0 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--stroke);background:rgba(8,12,20,.55);backdrop-filter:blur(20px)}
+  .back{color:var(--accent);font-size:20px;line-height:1;margin-right:2px}
+  .nav .t{font-size:15px;font-weight:650}
+  .nav .s{font-size:10px;color:var(--muted);margin-top:2px;font-family:ui-monospace,Menlo,monospace}
+  .nav .gear{margin-left:auto;color:#aebbd0;font-size:17px}
+
+  .scroll{flex:1;padding:16px 16px 8px;overflow:hidden}
+  .thread{display:flex;flex-direction:column;gap:14px}
+  .user{align-self:flex-end;max-width:82%;background:var(--accent-soft);border:1px solid rgba(82,184,255,.26);padding:9px 12px;border-radius:15px;font-size:13px;line-height:1.45}
+  .assistant{display:flex;gap:9px}
+  .avatar{width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:11px;flex:none;margin-top:1px}
+  .bubble{font-size:13px;line-height:1.55;color:#dfe8f7}
+  .bubble p{margin:0 0 7px}
+  .bubble code{font-family:ui-monospace,Menlo,monospace;font-size:11px;background:rgba(255,255,255,.07);padding:1px 4px;border-radius:4px}
+
+  .tool{border:1px solid var(--stroke);background:var(--panel);border-radius:12px;padding:10px 11px;margin-left:33px}
+  .thead{display:flex;align-items:center;gap:8px}
+  .ic{width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:10px}
+  .name{font-family:ui-monospace,Menlo,monospace;font-size:11px;font-weight:600}
+  .state{margin-left:auto;font-size:9.5px;color:var(--green);display:flex;align-items:center;gap:4px}
+  .state:before{content:"";width:5px;height:5px;border-radius:50%;background:var(--green)}
+  .pre{margin-top:8px;background:rgba(0,0,0,.28);border-radius:7px;padding:8px 9px;font-family:ui-monospace,Menlo,monospace;font-size:9.5px;line-height:1.5;color:#a9b8cf;white-space:pre-wrap}
+  .pre b{display:block;color:#6f7f99;font-size:8px;letter-spacing:.8px;text-transform:uppercase;margin-bottom:3px;font-weight:600}
+
+  .goalbar{display:flex;align-items:center;gap:7px;padding:8px 16px;background:rgba(82,184,255,.07);border-top:1px solid var(--stroke);font-size:10.5px;color:#b9c9e2}
+  .goalbar em{color:var(--accent);font-style:normal}
+  .goalbar span{color:var(--muted);margin-left:auto}
+
+  .composer{padding:8px 14px 6px;background:rgba(8,12,20,.72);border-top:1px solid var(--stroke);backdrop-filter:blur(22px)}
+  .input{display:flex;gap:8px;align-items:flex-end}
+  .field{flex:1;border:1px solid rgba(82,184,255,.35);background:rgba(255,255,255,.055);border-radius:13px;padding:10px 12px;font-size:12.5px;color:#9fb0c9}
+  .send{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#06101d;display:grid;place-items:center;font-size:15px;font-weight:800;box-shadow:0 5px 18px rgba(82,184,255,.35)}
+  .hint{display:flex;justify-content:space-between;color:#5b6880;font-size:9px;padding:6px 4px 0}
+  .home{height:26px;display:grid;place-items:center}
+  .home i{width:120px;height:4px;border-radius:4px;background:rgba(255,255,255,.55);display:block}
+
+  .approval{position:absolute;left:12px;right:12px;bottom:92px;border-radius:18px;border:1px solid var(--stroke);
+    background:rgba(19,27,41,.94);backdrop-filter:blur(30px);box-shadow:0 24px 60px rgba(0,0,0,.6);padding:14px}
+  .approval h3{margin:0 0 8px;font-size:12.5px;display:flex;align-items:center;gap:7px}
+  .approval h3 em{color:var(--amber);font-style:normal}
+  .approval .d{font-size:11.5px;color:#c7d4e8;line-height:1.4}
+  .approval pre{margin:8px 0;background:rgba(0,0,0,.3);border-radius:8px;padding:8px;font-size:9px;line-height:1.4;color:#9fb0c9;font-family:ui-monospace,Menlo,monospace;white-space:pre-wrap}
+  .row{display:flex;justify-content:flex-end;gap:7px}
+  .btn{font-size:11.5px;padding:7px 14px;border-radius:9px;border:1px solid var(--stroke);color:#dce7f8;background:transparent}
+  .btn.primary{background:var(--accent);color:#07101c;border-color:transparent;font-weight:700}
+  .btn.deny{color:#ff8b8b;border-color:rgba(255,90,90,.3)}
+</style>
+</head>
+<body>
+  <div class="status">
+    <span>9:41</span>
+    <span class="right"><span class="bars"><i></i><i></i><i></i><i></i></span> <span>5G</span> <span class="battery"><i></i></span></span>
+  </div>
+
+  <div class="nav">
+    <span class="back">‹</span>
+    <div><div class="t">Fix login redirect bug</div><div class="s">deepseek-chat · 12,480 tokens</div></div>
+    <span class="gear">⚙</span>
+  </div>
+
+  <div class="scroll">
+    <div class="thread">
+      <div class="user">The login redirect loops after SSO. Find the bug and fix it in <code>Auth/Redirect.swift</code>.</div>
+
+      <div class="assistant">
+        <div class="avatar">✦</div>
+        <div class="bubble"><p>I’ll trace the redirect chain first, then patch the loop guard.</p></div>
+      </div>
+
+      <div class="tool">
+        <div class="thead"><div class="ic">G</div><div class="name">grep</div><div class="state">done</div></div>
+        <div class="pre"><b>input</b>{"pattern":"redirect|returnTo","include":"*.swift"}</div>
+        <div class="pre"><b>output</b>Auth/Redirect.swift:42: if let returnTo = params["returnTo"] {<br>Auth/Redirect.swift:57: redirect(to: returnTo)<br>Auth/Session.swift:88: guard !isAuthenticated</div>
+      </div>
+
+      <div class="assistant">
+        <div class="avatar">✦</div>
+        <div class="bubble">
+          <p>Found it: <code>returnTo</code> is trusted without checking it points at the callback route.</p>
+          <p>I’ll add a same-origin allowlist and a one-shot nonce, then run the auth tests.</p>
+        </div>
+      </div>
+
+      <div class="tool">
+        <div class="thead"><div class="ic">E</div><div class="name">edit_file</div><div class="state">running</div></div>
+        <div class="pre"><b>input</b>{"path":"Auth/Redirect.swift","old_string":"redirect(to: returnTo)","new_string":"redirect(to: safeReturnTo(returnTo))"}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="goalbar"><em>◎</em> Fix redirect loop · round 2/8 <span>active</span></div>
+
+  <div class="composer">
+    <div class="input">
+      <div class="field">Ask DSH to build, fix, or explain…</div>
+      <div class="send">↑</div>
+    </div>
+    <div class="hint"><span>Enter to send</span><span>default</span></div>
+    <div class="home"><i></i></div>
+  </div>
+
+  <div class="approval">
+    <h3><em>🔒</em> Approval required</h3>
+    <div class="d">Edit Auth/Redirect.swift</div>
+    <pre>{
+  "path" : "Auth/Redirect.swift",
+  "old_string" : "redirect(to: returnTo)",
+  "new_string" : "redirect(to: safeReturnTo(returnTo))"
+}</pre>
+    <div class="row"><span class="btn deny">Deny</span><span class="btn primary">Allow</span></div>
+  </div>
+</body>
+</html>
+

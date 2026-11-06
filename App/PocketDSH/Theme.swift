@@ -1,4 +1,4 @@
-﻿import SwiftUI
+import SwiftUI
 
 enum Theme {
     static let background = Color(red: 0.035, green: 0.05, blue: 0.08)
@@ -34,13 +34,8 @@ extension View {
 }
 
 extension View {
-    /// macOS 没有 textInputAutocapitalization；用条件编译包一层。
-    @ViewBuilder
+    /// 关闭首字母自动大写（API Key、路径、代码片段）。
     func noAutocapitalization() -> some View {
-        #if os(iOS)
-        self.textInputAutocapitalization(.never)
-        #else
-        self
-        #endif
+        textInputAutocapitalization(.never)
     }
 }

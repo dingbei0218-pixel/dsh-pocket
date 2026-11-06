@@ -1,8 +1,8 @@
-# 逆向报告：从 dsh-go 到 Swift 原生内核
+﻿# 逆向报告：从 dsh-go 到 Swift 原生内核
 
 > 对象：[`JopenChen/dsh-go`](https://github.com/JopenChen/dsh-go)（MIT）
 > 方法：通读 `pkg/` 全部 Go 源码与 `tests/`，抽取事件契约、状态机、协议细节，再用 Swift actor 重写。
-> 结论先行：**dsh-go 的「事件词汇表 + JSONL 布局 + Turn/Step 状态机 + 工具流水线」可以直接平移到 Apple 平台；但它的 Agent 循环有几处演示级省略，直接照抄会在真实模型上跑不通。**
+> 结论先行：**dsh-go 的「事件词汇表 + JSONL 布局 + Turn/Step 状态机 + 工具流水线」可以直接平移到 Apple 平台；但它的 Agent 循环有几处演示级省略，直接照抄会 真实模型上跑不通。**
 
 ---
 
@@ -69,22 +69,22 @@ Session (event sourcing) ──► fold / projection ──► prompt assemble �
 
 - `seq` 从 1 连续递增；`time` 单调不减（写入时取 `max(now, lastTime)`）。
 - `type` 决定 `data` 的具体结构；`surfaceOp` 只用于 compaction；`sourceEventSeqs` 记录派生来源。
-- 未知 `type` 在 Go 端 fail-closed（`CorruptEventError`）。Swift 端选择**保留并透传**，以便向前兼容更高格式版本；`EventType.isKnown` 可供调用方收紧。
+- 未知 `type`   Go 端 fail-closed（`CorruptEventError`）。Swift 端选择**保留并透传**，以便向前兼容更高格式版本；`EventType.isKnown` 可供调用方收紧。
 
 ### 2.3 八条 day-1 不变量（Swift 已实现其中时序部分）
 
 `append` 时逐条校验，失败即回滚 `seq`：
 
-1. `turn/start` 不能在 turn 已打开时出现；`turn` 必须等于 `nextTurn`（从 0 开始）。
+1. `turn/start` 不能  turn 已打开时出现；`turn` 必须等于 `nextTurn`（从 0 开始）。
 2. `turn/end` 必须有打开的 turn，且不能有打开的 step；`turn` 必须匹配。
 3. `turn/stopping` 必须有打开的 turn。
-4. `step/start` 必须在打开的 turn 内，且不能重复打开；`step` 必须等于 `nextStep`（每 turn 从 1 重置）。
+4. `step/start` 必须 打开的 turn 内，且不能重复打开；`step` 必须等于 `nextStep`（每 turn 从 1 重置）。
 5. `step/end` 必须匹配当前打开的 step。
-6. `tool/call` 必须在打开的 step 内，`callId` 不得重复。
+6. `tool/call` 必须 打开的 step 内，`callId` 不得重复。
 7. `tool/result` / `tool/error` 必须对应一个已登记且未配对的 `callId`。
 8. 日志结束时不允许有未闭合的 turn / step / tool call（`Check()` 负责整条日志校验）。
 
-> Swift 端把这套状态机放在 `SessionLog` actor 里，UI 与 Agent 都无法绕过。
+> Swift 端把这套状态机放  `SessionLog` actor 里，UI 与 Agent 都无法绕过。
 
 ### 2.4 fold 与 surface replace
 
@@ -141,7 +141,7 @@ Swift 端对应修复：
 
 - **单 Turn 串行**：turn 队列容量 2（1 运行 + 1 排队），保证事件顺序简单可推理。
 - **取消原因分类**：Swift 用 `Task.cancel()` + `LLMFailure.cancelled`，并把 `turn/end(aborted)` 落盘。
-- **重试只在「尚未产生输出」时进行**：否则会重复文本。Swift 端显式检查 `receivedAnything`。
+- **重试只 「尚未产生输出」时进行**：否则会重复文本。Swift 端显式检查 `receivedAnything`。
 - **Goal RoundDriver 监听 turn-stopping**：目标 active 时自动续轮，直到 `maxRounds`。Swift 端保留了 goal 投影与手动续轮，自动轮询默认不开启（避免 App 里无限循环）。
 
 ---
@@ -180,7 +180,7 @@ Content-Type: application/json
 - 最后一条带 `usage.prompt_tokens/completion_tokens`（DeepSeek 还带 `prompt_cache_hit_tokens`）
 - `data: [DONE]`
 
-Swift 实现没有用 `URLSession.bytes`（corelibs 不保证可用），而是 `URLSessionDataDelegate` 逐行喂给 `AsyncThrowingStream`，并用 `onTermination` 取消底层 task；在 iOS/macOS/Windows 行为一致。
+Swift 实现没有用 `URLSession.bytes`（corelibs 不保证可用），而是 `URLSessionDataDelegate` 逐行喂给 `AsyncThrowingStream`，并用 `onTermination` 取消底层 task；  iOS/macOS/Windows 行为一致。
 
 ### 错误分类（与官方 `error.ts` 对齐）
 
@@ -206,13 +206,13 @@ Go 的 `tools.Pipeline`：`pre → execute → post → result`，每级是 `wat
 - `post` 可 block / 截断 / 附 meta；
 - `result` 做最终包装。
 
-Swift 端没有照搬泛型 chain，而是把「审批」放在 Agent 层、把「执行 + 截断 + spill」放在 `ToolRegistry`：
+Swift 端没有照搬泛型 chain，而是把「审批」放  Agent 层、把「执行 + 截断 + spill」放  `ToolRegistry`：
 
 ```
 approval gate → tool.execute(context, input) → truncate / spill → tool/result
 ```
 
-理由：Apple 端审批必须桥接到 UI（异步 continuation），放在 Agent 层能保证 `approval/asked`、`approval/decided` 与 `tool/call`、`tool/result` 的事件顺序；工具实现只关心业务。
+理由：Apple 端审批必须桥接到 UI（异步 continuation），放  Agent 层能保证 `approval/asked`、`approval/decided` 与 `tool/call`、`tool/result` 的事件顺序；工具实现只关心业务。
 
 沙箱三态与 dsh-go 一致：`read-only` / `workspace-write` / `danger-full-access`；`SandboxGuard.resolve` 做标准化 + 符号链接解析 + 前缀校验，防止 `../` 逃逸。
 
@@ -223,7 +223,7 @@ approval gate → tool.execute(context, input) → truncate / spill → tool/res
 | 约束 | 决策 |
 |---|---|
 | iOS 禁止 `fork/exec` | 不注册 `shell`；`#if os(macOS)` 编译期裁剪 |
-| App 沙箱 | 工作区固定在 `Application Support/DSH/Workspace`；macOS 开发版关闭 App Sandbox 才能跑 shell |
+| App 沙箱 | 工作区固定  `Documents/DSH/Workspace`，开启 Files 共享；所有文件工具二次校验路径 |
 | 后台挂起 | 事件逐条落盘；恢复时 `repairOrphanTurn` 自动补齐未闭合的 turn/step/tool |
 | 无终端 UI | 审批用 SwiftUI overlay + `CheckedContinuation` 桥接；无处理器时 fail-closed |
 | Keychain | `APIKeyStore` 协议 + `KeychainAPIKeyStore`；DSHKit 本身不依赖 Security |
@@ -246,7 +246,7 @@ approval gate → tool.execute(context, input) → truncate / spill → tool/res
 - 时间精度：Swift `Date` 写 3 位小数（Go RFC3339Nano 可解析 1–9 位，读取时兼容）。
 - Swift 保留未知事件类型（向前兼容），Go 默认 fail-closed。
 - Swift 的 `assistant/chunk` 按 delta 追加（与 Go 一致），但 UI 聚合由投影完成。
-- Swift 在工具结果回填、schema 注入、tool_calls 聚合上**优于**参考实现（见 3.1）。
+- Swift  工具结果回填、schema 注入、tool_calls 聚合上**优于**参考实现（见 3.1）。
 
 **未对齐**
 
@@ -276,3 +276,5 @@ approval gate → tool.execute(context, input) → truncate / spill → tool/res
 - `pkg/persistence/jsonl.go`（布局、崩溃修复）
 - `pkg/goal/goal.go`（四态与续轮）
 - `pkg/session/header.go`（格式版本）
+
+

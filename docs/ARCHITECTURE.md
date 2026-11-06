@@ -1,30 +1,30 @@
-# 架构
+﻿# 架构
 
 ## 1. 总览
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ SwiftUI (MainActor)                                         │
-│  RootView / ChatScreen / Settings / ApprovalOverlay         │
-│        ▲ SessionProjection          │ user actions         │
-│        │                            ▼                      │
-│  AppModel (@MainActor, ObservableObject)                    │
+  SwiftUI (MainActor)                                          
+   RootView / ChatScreen / Settings / ApprovalOverlay          
+         ▲ SessionProjection            user actions          
+                                      ▼                       
+   AppModel (@MainActor, ObservableObject)                     
 └───────────────┬─────────────────────────────────────────────┘
-                │ async calls
+                  async calls
 ┌───────────────▼─────────────────────────────────────────────┐
-│ Agent (actor)                                               │
-│  turn/step loop · approval gate · context assembly · title  │
-│        │                 │                    │             │
-│        ▼                 ▼                    ▼             │
-│  SessionLog(actor)   LLMProvider          ToolRegistry      │
-│  invariants+fold     DeepSeek SSE         File/Search/Web/  │
-│        │                                  Shell/Todo        │
-│        ▼                                                    │
-│  SessionStore(actor) → header.json + events.jsonl           │
+  Agent (actor)                                                
+   turn/step loop · approval gate · context assembly · title   
+                                                               
+         ▼                 ▼                    ▼              
+   SessionLog(actor)   LLMProvider          ToolRegistry       
+   invariants+fold     DeepSeek SSE         File/Search/Web/   
+                                            Shell/Todo         
+         ▼                                                     
+   SessionStore(actor) → header.json + events.jsonl            
 └─────────────────────────────────────────────────────────────┘
 ```
 
-`DSHKit` 不依赖 SwiftUI / Security，可在 macOS、iOS、Windows（测试用）编译。
+`DSHKit` 不依赖 SwiftUI / Security，可在 iOS / Windows（测试用）编译。
 App 层只依赖 `DSHKit` 的公开 API。
 
 ## 2. 并发模型
@@ -54,20 +54,20 @@ Agent.run(text)
  ├─ turn/start(turn=n)
  ├─ user/message(content, source=run)
  ├─ step/start(turn=n, step=1)
- │   ├─ agent/request, llm/request
- │   ├─ [首次] request/header, request/context
- │   ├─ provider.stream(...)
- │   │    ├─ assistant/chunk*      (text)
- │   │    ├─ assistant/reasoning*  (reasoning_content)
- │   │    └─ 聚合 tool_calls(index)
- │   ├─ assistant/message(content, toolCallIds)
- │   ├─ llm/done(usage)
- │   ├─ for each call:
- │   │    ├─ [需要时] approval/asked → UI → approval/decided
- │   │    ├─ tool/call
- │   │    ├─ tool.execute → truncate/spill
- │   │    └─ tool/result
- │   └─ step/end
+     ├─ agent/request, llm/request
+     ├─ [首次] request/header, request/context
+     ├─ provider.stream(...)
+          ├─ assistant/chunk*      (text)
+          ├─ assistant/reasoning*  (reasoning_content)
+          └─ 聚合 tool_calls(index)
+     ├─ assistant/message(content, toolCallIds)
+     ├─ llm/done(usage)
+     ├─ for each call:
+          ├─ [需要时] approval/asked → UI → approval/decided
+          ├─ tool/call
+          ├─ tool.execute → truncate/spill
+          └─ tool/result
+     └─ step/end
  ├─ 若本步有工具调用 → step+1，回到 step/start
  ├─ turn/stopping
  ├─ turn/end(completed)
@@ -134,3 +134,5 @@ Agent 采用请求级裁剪作为默认策略（见第 4 节）。这避免在�
 - actor：不变量、修复、surface replace、持久化、fork。
 - 集成：MockProvider 驱动完整 Turn/Step，断言事件序列与第二轮请求的 tool 消息。
 - 端到端：本地 Node SSE mock + CLI，验证真实 URLSession/SSE/工具/落盘链路（见 TESTING.md）。
+
+

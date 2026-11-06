@@ -72,21 +72,16 @@ struct SettingsView: View {
                             .tag(preset.0)
                         }
                     }
-                    #if os(iOS)
-                    Text("iOS never exposes a shell tool: subprocesses are not allowed. File and web tools stay inside the app workspace.")
+                    Text("工作区位于 App 的 Documents/DSH/Workspace，可在系统「文件」App 中直接查看和导入文件。")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    #endif
                 }
 
                 Section("Tools") {
                     Toggle("Web fetch", isOn: $draft.enableWeb)
-                    #if os(macOS)
-                    Toggle("Shell (zsh)", isOn: $draft.enableShell)
-                    Text("Shell escapes the workspace sandbox by design. Keep the default permission preset unless you trust the prompt.")
+                    Text("iOS 不允许创建子进程，因此不提供 shell 工具。文件与联网工具都被限制在 App 工作区内。")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    #endif
                 }
 
                 Section("Context") {
@@ -130,7 +125,8 @@ struct SettingsView: View {
             }
             .preferredColorScheme(.dark)
         }
-        .frame(minWidth: 420, minHeight: 560)
     }
 }
+
+
 

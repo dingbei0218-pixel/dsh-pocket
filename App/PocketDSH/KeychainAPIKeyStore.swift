@@ -1,4 +1,4 @@
-import Foundation
+﻿import Foundation
 import Security
 import DSHKit
 
@@ -45,3 +45,4 @@ struct KeychainAPIKeyStore: APIKeyStore {
         SecItemDelete(query as CFDictionary)
     }
 }
+

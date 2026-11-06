@@ -1,0 +1,19 @@
+DSH Pocket
+==========
+
+This project is a Swift port of the agent core from:
+
+  dsh-go — https://github.com/JopenChen/dsh-go
+  Copyright (c) 2026 JopenChen
+  MIT License
+
+The Swift implementation, SwiftUI application, tests and documentation are
+new work by the DSH Pocket contributors, distributed under the same MIT terms.
+
+DeepSeek Harness (DSH) is developed by DeepSeek. This project is an
+independent, unofficial port and is not affiliated with or endorsed by
+DeepSeek. "DeepSeek" and "DSH" are trademarks of their respective owners.
+
+The Swift package links against Apple's Foundation and (on Apple platforms)
+Security, SwiftUI and Combine frameworks, which are subject to Apple's
+respective license terms.

@@ -1,0 +1,26 @@
+# macOS / Xcode
+.DS_Store
+build/
+.swiftpm/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+App/PocketDSH.xcodeproj/project.xcworkspace/xcuserdata/
+App/PocketDSH.xcodeproj/xcuserdata/
+
+# SwiftPM
+.build/
+.test-tmp/
+
+# Local toolchain, secrets and generated artifacts
+.tooling/
+.env
+*.local.json
+*.log
+*.exe
+*.cab
+*.msi
+
+# Test output
+.coverage/
+TestResults/

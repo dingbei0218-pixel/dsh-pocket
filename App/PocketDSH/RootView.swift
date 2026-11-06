@@ -569,21 +569,16 @@ struct DSHMark: View {
     var size: CGFloat = 26
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: size * 0.3, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: [theme.accent, theme.accent.opacity(0.55)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-            Image(systemName: "drop.fill")
-                .font(.system(size: size * 0.42, weight: .bold))
-                .foregroundStyle(theme.onAccent)
-                .rotationEffect(.degrees(180))
-        }
-        .frame(width: size, height: size)
+        Image("BrandMark")
+            .resizable()
+            .interpolation(.none)
+            .scaledToFit()
+            .frame(width: size, height: size)
+            .clipShape(RoundedRectangle(cornerRadius: size * 0.24, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: size * 0.24, style: .continuous)
+                    .strokeBorder(theme.stroke, lineWidth: 0.5)
+            )
     }
 }
 

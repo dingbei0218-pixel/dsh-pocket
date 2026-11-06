@@ -23,7 +23,10 @@ xcodebuild \
   CODE_SIGNING_REQUIRED=NO \
   build
 
-APP="$DERIVED/Build/Products/Release-iphoneos/PocketDSH.app"
+APP="$DERIVED/Build/Products/Release-iphoneos/DSH Pocket.app"
+if [ ! -d "$APP" ]; then
+  APP="$DERIVED/Build/Products/Release-iphoneos/PocketDSH.app"
+fi
 if [ ! -d "$APP" ]; then
   echo "build product not found: $APP" >&2
   exit 1

@@ -228,7 +228,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.dsh.pocket.ios;
-				PRODUCT_NAME = PocketDSH;
+				PRODUCT_NAME = "DSH Pocket";
 				SDKROOT = iphoneos;
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -257,7 +257,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.dsh.pocket.ios;
-				PRODUCT_NAME = PocketDSH;
+				PRODUCT_NAME = "DSH Pocket";
 				SDKROOT = iphoneos;
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;

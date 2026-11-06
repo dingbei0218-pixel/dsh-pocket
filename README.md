@@ -16,18 +16,31 @@
 |---|---|---|
 | `DSHKit` 核心包 | ✅ 完成 | `swift build` 通过（Swift 6.4.2） |
 | 单元测试 | ✅ 40 个全通过 | `swift test`，0 failures |
-| `PocketDSH` iOS App | ✅ 源码 + XcodeGen 工程 | 语法解析通过；需在 macOS + Xcode 16 上编译 |
-| `.ipa` 安装包 | ⏳ 需在你的 Mac 上签名构建 | 见 [App/README.md](App/README.md) |
+| `PocketDSH` iOS App | ✅ 编译 + 模拟器运行 | Xcode 27.2 / iPhone 18 Pro · iOS 27.2 |
+| 界面 / 皮肤系统 | ✅ DSH 桌面版默认风格 + v2 皮肤 | 65 款仓库皮肤同步 + 18 个本地皮肤解析验证 |
+| `.ipa` 安装包 | ⏳ 需开发者账号签名 | 见 [App/README.md](App/README.md) |
 
-> 本仓库的核心包在 Windows 上完成编译与测试；SwiftUI 只能在 Apple 平台编译，
-> 因此 App 层交付**完整 iOS 源码 + XcodeGen 工程描述**，在 Mac 上一条命令生成 `.xcodeproj`。
+> 核心包 40 个测试在 macOS 上通过；App 已在 Xcode 27.2 + iPhone 18 Pro 模拟器（iOS 27.2）里编译并运行。
 
 ## 界面预览
 
 ![PocketDSH iPhone UI](docs/preview-ios.png)
 
-> HTML 设计稿（`docs/preview-ios.html`），用于在没有 Mac 的环境里预览 iPhone 布局；
-> 真机界面以 `App/PocketDSH/` 源码为准。
+> 模拟器实拍（iPhone 18 Pro / iOS 27.2）。
+>
+> <img src="docs/preview-skin-center.png" width="31%" alt="皮肤中心" /> <img src="docs/preview-skin.png" width="31%" alt="应用皮肤后" />
+
+### 界面与皮肤
+
+默认外观直接对齐 **DSH Desktop 暗色主题**：同一套 `--dsw-alias-*` token、同一个侧栏/输入卡层级。
+皮肤中心支持 DSH Skin Manifest v2，可从 Git 仓库同步 `skins/<id>/skin.json`：
+
+- 默认源：`https://github.com/zhu1090093659/dsh-skins`
+- 设置 → 外观 → 皮肤中心 → 同步 → 安装 → 立即生效
+- 也支持把皮肤目录拖进「文件」App 的 `DSH/Skins/`
+- `patches.css` 与 `hooks.mjs` 不执行；视频背景降级为预览图
+
+详见 [皮肤系统](docs/SKINS.md)。
 
 ---
 
@@ -73,6 +86,8 @@ apple-dsh/
 ├── App/
 │   ├── project.yml               # XcodeGen：单一 iOS target
 │   └── PocketDSH/                # iOS SwiftUI 源码
+│       ├── Skin/                 # 主题 token、皮肤解析/仓库/管理
+│       └── SkinCenterView.swift  # 皮肤中心
 ├── Tests/DSHKitTests/            # 40 个 XCTest
 ├── docs/                         # 逆向、架构、兼容性、事件表、测试
 └── scripts/                      # mock DeepSeek 服务端与验证脚本
@@ -154,9 +169,12 @@ DEEPSEEK_API_KEY=test swift run dsh run "read hello.txt" \
 - **没有 shell**：iOS 禁止 `fork/exec`，`ShellTool` 在编译期被 `#if os(macOS)` 排除；联网用 `web_fetch`，文件用沙箱工具。
 - **工作区可审计**：所有路径经过标准化 + 符号链接解析 + 前缀校验，`../` 逃逸会被拒绝。
 - **审批是一等能力**：写盘、联网等危险工具按预设决定 allow / ask / deny；无 UI 处理器时 fail-closed。
+- **交互细节**：会话置顶/搜索/重命名、审批「总是允许」、全文复制与 Markdown 导出、触感反馈、紧凑模式返回。
+- **移动端增强**：语音输入（Speech）、文件导入到工作区、Markdown 表格渲染、代码块横向滚动与复制。
 - **Keychain**：API Key 不落 UserDefaults；App 卸载即清除。
 - **后台挂起**：事件逐条落盘；恢复时 `repairOrphanTurn` 自动补齐未闭合的 turn/step/tool。
-- **纯本地**：除 DeepSeek API 与你显式让模型抓取的网页外，不上传任何数据。
+- **纯本地**：除 DeepSeek API、皮肤 Git 源与你显式让模型抓取的网页外，不上传任何数据。
+- **皮肤可换但不执行代码**：只读 CSS token 与静态资源，`hooks.mjs`/`patches.css` 不运行。
 
 ---
 
@@ -165,6 +183,7 @@ DEEPSEEK_API_KEY=test swift run dsh run "read hello.txt" \
 - 未实现 MCP、子代理、Workflow、Jobs、Skills 六层 Provider、SQLite 后端、OTel；矩阵见 [PARITY.md](docs/PARITY.md)。
 - 自动 compaction 只做请求级裁剪；`surface/replace` 事件与 fold 已实现但未自动触发。
 - 未做图片输入、语音输入、分享扩展、Widget。
+- 皮肤的视频背景降级为静态预览图；`patches.css` 的选择器级改造不执行。
 - 长任务切后台可能被系统挂起，回前台继续；事件不丢。
 
 ---

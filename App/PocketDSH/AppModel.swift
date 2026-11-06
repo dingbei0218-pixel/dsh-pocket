@@ -9,10 +9,13 @@ final class AppModel: ObservableObject {
     @Published private(set) var projection: SessionProjection?
     @Published private(set) var currentID: SessionID?
     @Published private(set) var isRunning = false
+    @Published private(set) var pinned: Set<String> = []
     @Published var errorMessage: String?
     @Published var showSettings = false
     @Published var showTodos = false
     @Published var showGoal = false
+    @Published var showSkinCenter = false
+    @Published var startInDetail = false
 
     // 配置
     @Published var config: DSHConfig {
@@ -26,6 +29,7 @@ final class AppModel: ObservableObject {
     private let keyStore = KeychainAPIKeyStore()
     private let defaults = UserDefaults.standard
     private let configKey = "dsh.config.v1"
+    private let pinnedKey = "dsh.sessions.pinned"
     private var agent: Agent? = nil
     private var eventTask: Task<Void, Never>? = nil
     private var chunkCounter = 0
@@ -42,12 +46,13 @@ final class AppModel: ObservableObject {
 
         // iOS：放在 Documents 下，用户可以在「文件」App 里直接查看/导入工作区文件。
         let documents = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
-            ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Documents")
+            ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Documents")
         let root = documents.appendingPathComponent("DSH", isDirectory: true)
         workspace = root.appendingPathComponent("Workspace", isDirectory: true)
         store = SessionStore(root: root.appendingPathComponent("sessions", isDirectory: true))
 
         try? FileManager.default.createDirectory(at: workspace, withIntermediateDirectories: true)
+        pinned = Set(UserDefaults.standard.stringArray(forKey: "dsh.sessions.pinned") ?? [])
 
         Task {
             await self.bootstrap()
@@ -59,14 +64,45 @@ final class AppModel: ObservableObject {
     func bootstrap() async {
         hasAPIKey = (await keyStore.apiKey())?.isEmpty == false
         await refreshSessions()
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-demo") {
+            await createDemoSession()
+        }
+        if ProcessInfo.processInfo.arguments.contains("-skins") {
+            showSkinCenter = true
+        }
+        if ProcessInfo.processInfo.arguments.contains("-settings") {
+            showSettings = true
+        }
+        #endif
     }
 
     func refreshSessions() async {
         do {
-            sessions = try await store.listSessions()
+            let list = try await store.listSessions()
+            sessions = list.sorted { lhs, rhs in
+                let lp = pinned.contains(lhs.id.rawValue)
+                let rp = pinned.contains(rhs.id.rawValue)
+                if lp != rp { return lp }
+                return lhs.updatedAt > rhs.updatedAt
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    func isPinned(_ id: SessionID) -> Bool {
+        pinned.contains(id.rawValue)
+    }
+
+    func togglePin(_ id: SessionID) async {
+        if pinned.contains(id.rawValue) {
+            pinned.remove(id.rawValue)
+        } else {
+            pinned.insert(id.rawValue)
+        }
+        defaults.set(Array(pinned), forKey: pinnedKey)
+        await refreshSessions()
     }
 
     // MARK: - 会话生命周期
@@ -117,6 +153,71 @@ final class AppModel: ObservableObject {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    #if DEBUG
+    /// 仅用于模拟器演示/截图：没有 API Key 也能看到完整对话界面。
+    func createDemoSession() async {
+        do {
+            let header = try await store.createSession(cwd: workspace.path)
+            let log = SessionLog(id: header.id)
+            let markdown = """
+            我按 DSH Desktop 的视觉层级重做了一版，核心是三个 token 层：
+
+            | 层级 | 用途 | 颜色 |
+            |---|---|---|
+            | base | 画布 | #151517 |
+            | layer-1 | 侧栏 / 卡片 | #232323 |
+            | layer-2 | 输入卡 | #2c2c2e |
+
+            皮肤从 Git 同步，`skin.css` 里的 `--dsw-alias-*` 直接映射到 SwiftUI：
+
+            ```swift
+            let theme = AppTheme(manifest: manifest, tokens: SkinCSS.tokens(from: css))
+            ```
+
+            工具调用和审批、语音输入、文件导入也都接上了。
+            """
+            try await log.append(.turnStart(turn: 0))
+            try await log.append(.userMessage(content: "默认跟 DSH Mac 版一样，能同步 Git 上的皮肤，交互再顺一点。"))
+            try await log.append(.stepStart(turn: 0, step: 1))
+            try await log.append(.assistantReasoning(text: "先对齐桌面版的 token 与布局，再补皮肤中心和移动端交互。"))
+            try await log.append(.assistantMessage(content: markdown))
+            try await log.append(.toolCall(callID: "call_demo", tool: "read_file", input: .object(["path": .string("App/PocketDSH/Skin/AppTheme.swift")])))
+            try await log.append(.toolResult(callID: "call_demo", output: "AppTheme.swift · 297 lines · 4.2 KB"))
+            try await log.append(.stepEnd(turn: 0, step: 1))
+            try await log.append(.turnStopping(reason: "completed"))
+            try await log.append(.turnEnd(turn: 0, reason: .completed))
+            try await log.append(.sessionTitle("DSH 风格与皮肤系统"))
+            for event in await log.snapshot() {
+                try await store.append(event, to: header.id)
+            }
+            let agent = try await DSHFactory.openAgent(
+                store: store,
+                sessionID: header.id,
+                workspace: workspace,
+                config: config,
+                keyStore: keyStore,
+                approval: approvalHandler
+            )
+            activate(agent: agent)
+            startInDetail = true
+            await refreshSessions()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    #endif
+
+    func rename(session: SessionSummary, to title: String) async {
+        let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        if session.id != currentID { await open(session) }
+        guard let agent, session.id == currentID else { return }
+        let log = await agent.eventLog()
+        _ = try? await log.append(.sessionTitle(trimmed))
+        await refreshProjection()
+        await refreshSessions()
     }
 
     func renameCurrent(_ title: String) async {
@@ -179,6 +280,9 @@ final class AppModel: ObservableObject {
     // MARK: - 发送 / 停止
 
     func send(_ text: String) async {
+        if agent == nil {
+            await createSession()
+        }
         guard let agent else { return }
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }

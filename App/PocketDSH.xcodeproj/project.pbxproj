@@ -1,0 +1,431 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		246A5A449319EDB33E2B2415 /* SkinRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E485ACD90394D8940D25CB2 /* SkinRepository.swift */; };
+		4BE346ADA9A1DB7F43549EE0 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B1F6DC246EACB6AAC2311C /* AppTheme.swift */; };
+		4C61EC0DFD35872DC640C921 /* SkinManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E43D61DCC024418D1E2ED2 /* SkinManager.swift */; };
+		6D629023E7E3A9623C1162EB /* KeychainAPIKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B51FBDAF5018EDD27B01BF /* KeychainAPIKeyStore.swift */; };
+		708039474A42D5E2857CE96F /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E49174EF09E1D031919D8D /* ChatView.swift */; };
+		873DD0232F9741F599714544 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 07CDD0CC0057F5866D24FF20 /* Assets.xcassets */; };
+		8D14EEAAF580ACCE5099DC18 /* SkinCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24E5FCEFFB31479DAE74C4C1 /* SkinCenterView.swift */; };
+		92112F0E799D2E62E5DECE41 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A1A8BEE7A33BCF38262DD1 /* AppModel.swift */; };
+		A11F026E5A8BC3BDA4A9F0F6 /* SkinStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E39CFA4450F85E6853D34DF4 /* SkinStore.swift */; };
+		AD0112C454FFA88C200C7B8F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95E9B64165A8B5AC5B668F41 /* SettingsView.swift */; };
+		B3398BBFCC62970E5BC4AE36 /* SpeechRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74843345A0BC84EF9AACB072 /* SpeechRecognizer.swift */; };
+		B7449BEFAA172CF5DE9667C5 /* SkinManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC46D752C2B45E05CE7CD66 /* SkinManifest.swift */; };
+		C9D4CACAFC991269FE6A7BCB /* PocketDSHApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F816DAE6C96C8E45D149EEF5 /* PocketDSHApp.swift */; };
+		DEC528524D504A3BD961D8F2 /* DSHKit in Frameworks */ = {isa = PBXBuildFile; productRef = DC2834B9DEFF272BD8DAA6EB /* DSHKit */; };
+		E8E995E47B15BE5CD33966E3 /* ApprovalBroker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DBC7CE199B5E216CE3D8D1E /* ApprovalBroker.swift */; };
+		F42E34CF13D2F404CE9BD3AD /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B42C5E6BB42A86D4B6A1A3CC /* RootView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		07CDD0CC0057F5866D24FF20 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1FC876E97B4EA3AE9BC55330 /* apple-dsh */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "apple-dsh"; path = ..; sourceTree = SOURCE_ROOT; };
+		24E5FCEFFB31479DAE74C4C1 /* SkinCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinCenterView.swift; sourceTree = "<group>"; };
+		34E43D61DCC024418D1E2ED2 /* SkinManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinManager.swift; sourceTree = "<group>"; };
+		47E49174EF09E1D031919D8D /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		4E485ACD90394D8940D25CB2 /* SkinRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinRepository.swift; sourceTree = "<group>"; };
+		74843345A0BC84EF9AACB072 /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
+		95E9B64165A8B5AC5B668F41 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		9DBC7CE199B5E216CE3D8D1E /* ApprovalBroker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApprovalBroker.swift; sourceTree = "<group>"; };
+		B0A1A8BEE7A33BCF38262DD1 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		B42C5E6BB42A86D4B6A1A3CC /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		DDABBFBF5FFCE258A34E1AF0 /* PocketDSH.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = PocketDSH.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E0B1F6DC246EACB6AAC2311C /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		E2B51FBDAF5018EDD27B01BF /* KeychainAPIKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainAPIKeyStore.swift; sourceTree = "<group>"; };
+		E39CFA4450F85E6853D34DF4 /* SkinStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinStore.swift; sourceTree = "<group>"; };
+		F816DAE6C96C8E45D149EEF5 /* PocketDSHApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PocketDSHApp.swift; sourceTree = "<group>"; };
+		FBC46D752C2B45E05CE7CD66 /* SkinManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinManifest.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CEE4502F0DB6A21B7EEDC688 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DEC528524D504A3BD961D8F2 /* DSHKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		239293F796613E0975AFCCEB /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				1FC876E97B4EA3AE9BC55330 /* apple-dsh */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		81C35C93D8AA499A11D64DC2 /* PocketDSH */ = {
+			isa = PBXGroup;
+			children = (
+				B0A1A8BEE7A33BCF38262DD1 /* AppModel.swift */,
+				9DBC7CE199B5E216CE3D8D1E /* ApprovalBroker.swift */,
+				07CDD0CC0057F5866D24FF20 /* Assets.xcassets */,
+				47E49174EF09E1D031919D8D /* ChatView.swift */,
+				E2B51FBDAF5018EDD27B01BF /* KeychainAPIKeyStore.swift */,
+				F816DAE6C96C8E45D149EEF5 /* PocketDSHApp.swift */,
+				B42C5E6BB42A86D4B6A1A3CC /* RootView.swift */,
+				95E9B64165A8B5AC5B668F41 /* SettingsView.swift */,
+				24E5FCEFFB31479DAE74C4C1 /* SkinCenterView.swift */,
+				74843345A0BC84EF9AACB072 /* SpeechRecognizer.swift */,
+				B2A6CBCA294D699425DC7088 /* Skin */,
+			);
+			path = PocketDSH;
+			sourceTree = "<group>";
+		};
+		B2A6CBCA294D699425DC7088 /* Skin */ = {
+			isa = PBXGroup;
+			children = (
+				E0B1F6DC246EACB6AAC2311C /* AppTheme.swift */,
+				34E43D61DCC024418D1E2ED2 /* SkinManager.swift */,
+				FBC46D752C2B45E05CE7CD66 /* SkinManifest.swift */,
+				4E485ACD90394D8940D25CB2 /* SkinRepository.swift */,
+				E39CFA4450F85E6853D34DF4 /* SkinStore.swift */,
+			);
+			path = Skin;
+			sourceTree = "<group>";
+		};
+		E91CCE0EE522AA11ED3C32BD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DDABBFBF5FFCE258A34E1AF0 /* PocketDSH.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FF890920F29EE53938B85EB6 = {
+			isa = PBXGroup;
+			children = (
+				239293F796613E0975AFCCEB /* Packages */,
+				81C35C93D8AA499A11D64DC2 /* PocketDSH */,
+				E91CCE0EE522AA11ED3C32BD /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4E566F4FF4007B5B20A3BDFF /* PocketDSH */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DF99422161DE6368EBBFD7E3 /* Build configuration list for PBXNativeTarget "PocketDSH" */;
+			buildPhases = (
+				EB3206929C997D006B574805 /* Sources */,
+				41D473C8CE155010249B415D /* Resources */,
+				CEE4502F0DB6A21B7EEDC688 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PocketDSH;
+			packageProductDependencies = (
+				DC2834B9DEFF272BD8DAA6EB /* DSHKit */,
+			);
+			productName = PocketDSH;
+			productReference = DDABBFBF5FFCE258A34E1AF0 /* PocketDSH.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A35E0182ECFA2A173EA8E6DB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					4E566F4FF4007B5B20A3BDFF = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 630D8AF53BCEE315EEDA40AD /* Build configuration list for PBXProject "PocketDSH" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = FF890920F29EE53938B85EB6;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				460A6164CE7A7C6693D27745 /* XCLocalSwiftPackageReference ".." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = E91CCE0EE522AA11ED3C32BD /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4E566F4FF4007B5B20A3BDFF /* PocketDSH */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		41D473C8CE155010249B415D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				873DD0232F9741F599714544 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		EB3206929C997D006B574805 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				92112F0E799D2E62E5DECE41 /* AppModel.swift in Sources */,
+				4BE346ADA9A1DB7F43549EE0 /* AppTheme.swift in Sources */,
+				E8E995E47B15BE5CD33966E3 /* ApprovalBroker.swift in Sources */,
+				708039474A42D5E2857CE96F /* ChatView.swift in Sources */,
+				6D629023E7E3A9623C1162EB /* KeychainAPIKeyStore.swift in Sources */,
+				C9D4CACAFC991269FE6A7BCB /* PocketDSHApp.swift in Sources */,
+				F42E34CF13D2F404CE9BD3AD /* RootView.swift in Sources */,
+				AD0112C454FFA88C200C7B8F /* SettingsView.swift in Sources */,
+				8D14EEAAF580ACCE5099DC18 /* SkinCenterView.swift in Sources */,
+				4C61EC0DFD35872DC640C921 /* SkinManager.swift in Sources */,
+				B7449BEFAA172CF5DE9667C5 /* SkinManifest.swift in Sources */,
+				246A5A449319EDB33E2B2415 /* SkinRepository.swift in Sources */,
+				A11F026E5A8BC3BDA4A9F0F6 /* SkinStore.swift in Sources */,
+				B3398BBFCC62970E5BC4AE36 /* SpeechRecognizer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		41B638352911953037361ED8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "DSH Pocket";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "语音输入需要麦克风";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "把语音转成文字发送给 DSH";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIFileSharingEnabled = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.dsh.pocket.ios;
+				PRODUCT_NAME = PocketDSH;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		47A666FC18536793578C0860 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "DSH Pocket";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "语音输入需要麦克风";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "把语音转成文字发送给 DSH";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIFileSharingEnabled = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.dsh.pocket.ios;
+				PRODUCT_NAME = PocketDSH;
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		ED0E233413B20D73C81B199C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F877AB21572DAE05707D5DEA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		630D8AF53BCEE315EEDA40AD /* Build configuration list for PBXProject "PocketDSH" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ED0E233413B20D73C81B199C /* Debug */,
+				F877AB21572DAE05707D5DEA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DF99422161DE6368EBBFD7E3 /* Build configuration list for PBXNativeTarget "PocketDSH" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				47A666FC18536793578C0860 /* Debug */,
+				41B638352911953037361ED8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		460A6164CE7A7C6693D27745 /* XCLocalSwiftPackageReference ".." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DC2834B9DEFF272BD8DAA6EB /* DSHKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DSHKit;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = A35E0182ECFA2A173EA8E6DB /* Project object */;
+}

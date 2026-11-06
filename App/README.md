@@ -63,10 +63,24 @@ scripts/build-app.sh
 ## 界面
 
 - 会话列表（新建、删除、切换），iPhone 上为折叠式导航
-- 聊天流：用户气泡、助手 Markdown、代码块、推理折叠、工具卡（输入/输出/状态）
+- 聊天流：用户气泡、助手 Markdown（含表格/代码块）、推理折叠、工具卡（输入/输出/状态）、复制/导出
 - 审批卡：危险工具逐次确认（Deny / Allow），从底部弹出
-- 顶栏：模型、token、todo 进度、Goal、Settings、Stop
+- 顶栏：模型、token、todo 进度、Goal、Settings、Stop、导出菜单
+- 会话：搜索、置顶、重命名、删除；审批支持「总是允许」（仅当前 App 会话）
+- 输入：语音转文字、从「文件」导入代码到工作区并自动插入 @ 引用
 - 设置：API Key、模型、base URL、权限预设、联网开关、上下文窗口、自定义指令
+- 皮肤中心：默认对齐 DSH Desktop 暗色主题；可从任意 `skins/<id>/skin.json` 结构的 Git 仓库同步、安装、切换（见 [docs/SKINS.md](../docs/SKINS.md)）
+
+## 皮肤
+
+默认主题使用 DSH Desktop 的官方暗色 token；皮肤中心兼容 DSH Skin Manifest v2：
+
+1. 设置 → 外观 → 皮肤中心；
+2. 默认源 `https://github.com/zhu1090093659/dsh-skins`，也可换任意 GitHub 仓库；
+3. 同步 → 安装 → 立即生效，无需重启。
+
+皮肤会落到 `Documents/DSH/Skins/<id>/`，可通过「文件」App 直接查看；`hooks.mjs` 与
+`patches.css` 不会执行，视频背景降级为预览图。详见 [docs/SKINS.md](../docs/SKINS.md)。
 
 ## 平台限制
 

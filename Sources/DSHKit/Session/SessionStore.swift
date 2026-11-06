@@ -40,7 +40,7 @@ public actor SessionStore {
     /// 默认存储目录：macOS/iOS 的 Application Support/DSH/sessions。
     public static func defaultRoot() -> URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-            ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support", isDirectory: true)
+            ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support", isDirectory: true)
         return base.appendingPathComponent("DSH", isDirectory: true)
             .appendingPathComponent("sessions", isDirectory: true)
     }

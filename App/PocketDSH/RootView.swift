@@ -461,6 +461,7 @@ private struct SessionRow: View {
 struct EmptyStateView: View {
     @EnvironmentObject private var model: AppModel
     @Environment(\.appTheme) private var theme
+    var onBack: (() -> Void)? = nil
     @State private var prompt = ""
 
     private let suggestions = [
@@ -541,6 +542,23 @@ struct EmptyStateView: View {
                 .padding(.bottom, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .topLeading) {
+            if let onBack {
+                Button {
+                    onBack()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(theme.textPrimary)
+                        .frame(width: 30, height: 30)
+                        .background(theme.surface, in: RoundedRectangle(cornerRadius: 7))
+                        .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(theme.stroke, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 8)
+                .padding(.leading, 16)
+            }
+        }
     }
 }
 

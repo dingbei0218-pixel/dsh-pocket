@@ -32,7 +32,7 @@ struct ChatScreen: View {
                     ComposerView(text: $draft)
                 }
             } else {
-                EmptyStateView()
+                EmptyStateView(onBack: onBack)
             }
         }
     }

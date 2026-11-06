@@ -9,6 +9,7 @@ struct SkinCenterView: View {
     @State private var source = SkinManager.defaultRepository
     @State private var showToken = false
     @State private var didAutoSync = false
+    @State private var query = ""
 
     private let columns = [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
 
@@ -17,6 +18,7 @@ struct SkinCenterView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     gitSection
+                    searchField
                     installedSection
                     remoteSection
                 }
@@ -188,13 +190,7 @@ struct SkinCenterView: View {
                 ZStack {
                     theme.surfaceHover
                     if let url = skins.previewURL(for: skin) {
-                        AsyncImage(url: url) { phase in
-                            if let image = phase.image {
-                                image.resizable().scaledToFill()
-                            } else {
-                                Color.clear
-                            }
-                        }
+                        SkinPreviewImage(url: url)
                     } else {
                         Text(skin.manifest.name)
                             .font(.system(size: 14, weight: .bold, design: .rounded))
@@ -244,9 +240,48 @@ struct SkinCenterView: View {
 
     // MARK: - Remote
 
+    private var filteredRemote: [RemoteSkin] {
+        let value = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else { return skins.remote }
+        return skins.remote.filter {
+            $0.manifest.name.localizedCaseInsensitiveContains(value) ||
+            $0.manifest.nameEn.localizedCaseInsensitiveContains(value) ||
+            ($0.manifest.tagline ?? "").localizedCaseInsensitiveContains(value) ||
+            $0.manifest.author.localizedCaseInsensitiveContains(value) ||
+            ($0.manifest.tags ?? []).contains { $0.localizedCaseInsensitiveContains(value) }
+        }
+    }
+
+    private var searchField: some View {
+        HStack(spacing: 7) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 11))
+                .foregroundStyle(theme.textTertiary)
+            TextField("搜索皮肤 / 作者 / 标签", text: $query)
+                .textFieldStyle(.plain)
+                .font(.system(size: 12))
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+            if !query.isEmpty {
+                Button {
+                    query = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 12))
+                        .foregroundStyle(theme.textTertiary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 10)
+        .frame(height: 34)
+        .background(theme.surface, in: RoundedRectangle(cornerRadius: 8))
+        .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(theme.stroke, lineWidth: 1))
+    }
+
     private var remoteSection: some View {
         VStack(alignment: .leading, spacing: 9) {
-            sectionTitle("仓库里的皮肤", subtitle: skins.remote.isEmpty ? "点右上角刷新" : "\(skins.remote.count) 款")
+            sectionTitle("仓库里的皮肤", subtitle: skins.remote.isEmpty ? "点右上角刷新" : (query.isEmpty ? "\(skins.remote.count) 款" : "\(filteredRemote.count) / \(skins.remote.count) 款"))
             if skins.remote.isEmpty {
                 Text(skins.isSyncing ? "正在拉取仓库目录…" : "还没有同步。填入皮肤仓库地址后点「同步」。")
                     .font(.system(size: 11.5))
@@ -255,9 +290,18 @@ struct SkinCenterView: View {
                     .padding(12)
                     .background(theme.surface.opacity(0.45), in: RoundedRectangle(cornerRadius: 9))
             } else {
-                LazyVStack(spacing: 8) {
-                    ForEach(skins.remote) { skin in
-                        remoteRow(skin)
+                if filteredRemote.isEmpty {
+                    Text("没有匹配「\(query)」的皮肤")
+                        .font(.system(size: 11.5))
+                        .foregroundStyle(theme.textTertiary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(12)
+                        .background(theme.surface.opacity(0.45), in: RoundedRectangle(cornerRadius: 9))
+                } else {
+                    LazyVStack(spacing: 8) {
+                        ForEach(filteredRemote) { skin in
+                            remoteRow(skin)
+                        }
                     }
                 }
             }
@@ -269,13 +313,7 @@ struct SkinCenterView: View {
             ZStack {
                 theme.surfaceHover
                 if let url = skins.previewURL(for: skin) {
-                    AsyncImage(url: url) { phase in
-                        if let image = phase.image {
-                            image.resizable().scaledToFill()
-                        } else {
-                            Color.clear
-                        }
-                    }
+                    SkinPreviewImage(url: url)
                 }
             }
             .frame(width: 84, height: 50)
@@ -337,6 +375,39 @@ struct SkinCenterView: View {
             Text(subtitle)
                 .font(.system(size: 9.5))
                 .foregroundStyle(theme.textTertiary.opacity(0.75))
+        }
+    }
+}
+
+
+private struct SkinPreviewImage: View {
+    @Environment(\.appTheme) private var theme
+    let url: URL?
+
+    var body: some View {
+        AsyncImage(url: url) { phase in
+            switch phase {
+            case .success(let image):
+                image.resizable().scaledToFill()
+            case .failure:
+                placeholder
+            default:
+                placeholder
+                    .overlay(ProgressView().controlSize(.mini))
+            }
+        }
+    }
+
+    private var placeholder: some View {
+        ZStack {
+            LinearGradient(
+                colors: [theme.surfaceHover, theme.accent.opacity(0.12)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            Image(systemName: "paintpalette")
+                .font(.system(size: 15, weight: .light))
+                .foregroundStyle(theme.textTertiary)
         }
     }
 }

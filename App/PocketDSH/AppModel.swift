@@ -68,6 +68,10 @@ final class AppModel: ObservableObject {
         if ProcessInfo.processInfo.arguments.contains("-demo") {
             await createDemoSession()
         }
+        if ProcessInfo.processInfo.arguments.contains("-newchat") {
+            await createSession()
+            startInDetail = true
+        }
         if ProcessInfo.processInfo.arguments.contains("-skins") {
             showSkinCenter = true
         }
@@ -88,6 +92,23 @@ final class AppModel: ObservableObject {
             }
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    var modelDisplayName: String {
+        switch config.model {
+        case "deepseek-chat": return "DeepSeek Chat"
+        case "deepseek-reasoner": return "DeepSeek Reasoner"
+        default: return config.model
+        }
+    }
+
+    var permissionDisplayName: String {
+        switch config.permissionPreset {
+        case "safe": return "只读"
+        case "review": return "改前确认"
+        case "danger": return "完全权限"
+        default: return "工作区写入"
         }
     }
 

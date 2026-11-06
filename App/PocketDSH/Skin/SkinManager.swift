@@ -20,7 +20,15 @@ final class SkinManager: ObservableObject {
     @Published var errorMessage: String?
 
     @Published var repositoryURL: String {
-        didSet { defaults.set(repositoryURL, forKey: "dsh.skin.repo") }
+        didSet {
+            defaults.set(repositoryURL, forKey: "dsh.skin.repo")
+            if oldValue != repositoryURL {
+                remote = []
+                currentRef = nil
+                currentBranch = nil
+                defaults.removeObject(forKey: "dsh.skin.remoteCache")
+            }
+        }
     }
     @Published var githubToken: String {
         didSet { defaults.set(githubToken, forKey: "dsh.skin.githubToken") }
@@ -40,6 +48,10 @@ final class SkinManager: ObservableObject {
         repositoryURL = defaults.string(forKey: "dsh.skin.repo") ?? Self.defaultRepository
         githubToken = defaults.string(forKey: "dsh.skin.githubToken") ?? ""
         store = SkinStore()
+        if let data = defaults.data(forKey: "dsh.skin.remoteCache"),
+           let cached = try? JSONDecoder().decode([RemoteSkin].self, from: data) {
+            remote = cached
+        }
         Task { await reload() }
         #if DEBUG
         let arguments = ProcessInfo.processInfo.arguments
@@ -129,7 +141,7 @@ final class SkinManager: ObservableObject {
             remote = result.skins
             statusMessage = "发现 \(result.skins.count) 款皮肤"
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = userFacing(error)
         }
     }
 
@@ -145,7 +157,7 @@ final class SkinManager: ObservableObject {
             installed = (try? await store.list()) ?? installed
             apply(installedSkin)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = userFacing(error)
         }
     }
 
@@ -166,6 +178,20 @@ final class SkinManager: ObservableObject {
 
     var activeSkin: InstalledSkin? {
         installed.first { $0.id == activeID }
+    }
+
+    private func userFacing(_ error: Error) -> String {
+        let ns = error as NSError
+        if ns.domain == NSURLErrorDomain, ns.code == NSURLErrorTimedOut {
+            return "请求超时。请检查网络，或在皮肤中心填入 GitHub Token 后重试。"
+        }
+        if ns.domain == NSURLErrorDomain, ns.code == NSURLErrorNotConnectedToInternet {
+            return "当前没有网络连接。"
+        }
+        if let skinError = error as? SkinError {
+            return skinError.localizedDescription
+        }
+        return error.localizedDescription
     }
 
     private func encodedPath(_ path: String) -> String {

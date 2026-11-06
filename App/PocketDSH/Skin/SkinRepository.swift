@@ -1,7 +1,7 @@
 import Foundation
 
 /// 远端（Git 仓库）里的一个皮肤。
-struct RemoteSkin: Identifiable, Hashable {
+struct RemoteSkin: Identifiable, Hashable, Codable {
     var manifest: SkinManifest
     var directory: String
     var files: [GitHubFile]
@@ -9,7 +9,7 @@ struct RemoteSkin: Identifiable, Hashable {
     var id: String { manifest.id }
 }
 
-struct GitHubFile: Hashable {
+struct GitHubFile: Hashable, Codable {
     var path: String
     var size: Int
 }
@@ -67,6 +67,9 @@ struct SkinRepository {
             }
         }
 
+        guard !results.isEmpty else {
+            throw SkinError.network("请求超时或 GitHub 不可达。请检查网络，或在皮肤中心填入 GitHub Token 后重试。")
+        }
         let sorted = results.sorted {
             if ($0.manifest.order ?? 999) != ($1.manifest.order ?? 999) {
                 return ($0.manifest.order ?? 999) < ($1.manifest.order ?? 999)

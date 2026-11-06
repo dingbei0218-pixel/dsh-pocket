@@ -51,7 +51,8 @@ struct SettingsView: View {
                 }
 
                 Section("DeepSeek") {
-                    HStack(spacing: 8) {
+                    labelled("API Key") {
+                        HStack(spacing: 8) {
                         Group {
                             if showKey {
                                 TextField("sk-…", text: $apiKey)
@@ -71,6 +72,7 @@ struct SettingsView: View {
                                 .foregroundStyle(theme.textTertiary)
                         }
                         .buttonStyle(.plain)
+                        }
                     }
 
                     HStack {
@@ -91,18 +93,33 @@ struct SettingsView: View {
                         }
                     }
 
-                    TextField("模型", text: $draft.model)
-                        .font(.system(size: 12, design: .monospaced))
-                        .autocorrectionDisabled()
-                    TextField("Base URL", text: $draft.baseURL)
-                        .font(.system(size: 12, design: .monospaced))
-                        .autocorrectionDisabled()
+                    Link(destination: URL(string: "https://platform.deepseek.com/api_keys")!) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.up.right.square")
+                            Text("获取 API Key")
+                        }
+                        .font(.system(size: 11))
+                        .foregroundStyle(theme.accent)
+                    }
+
+                    labelled("模型") {
+                        TextField("deepseek-chat", text: $draft.model)
+                            .font(.system(size: 12, design: .monospaced))
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                    }
+                    labelled("Base URL") {
+                        TextField("https://api.deepseek.com", text: $draft.baseURL)
+                            .font(.system(size: 12, design: .monospaced))
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                    }
                 }
 
                 Section("权限") {
                     Picker("预设", selection: $draft.permissionPreset) {
                         ForEach(presets, id: \.0) { preset in
-                            Text(preset.0.capitalized).tag(preset.0)
+                            Text(presetName(preset.0)).tag(preset.0)
                         }
                     }
                     Text(presets.first { $0.0 == draft.permissionPreset }?.1 ?? "")
@@ -132,13 +149,7 @@ struct SettingsView: View {
 
                 Section {
                     Button {
-                        Task {
-                            if apiKey != "" || !model.hasAPIKey {
-                                await model.saveAPIKey(apiKey)
-                            }
-                            model.config = draft
-                            dismiss()
-                        }
+                        save()
                     } label: {
                         Text("保存").frame(maxWidth: .infinity)
                     }
@@ -157,6 +168,10 @@ struct SettingsView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("关闭") { dismiss() }
                 }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("保存") { save() }
+                        .fontWeight(.semibold)
+                }
             }
             .onAppear {
                 draft = model.config
@@ -167,6 +182,35 @@ struct SettingsView: View {
                     .environmentObject(skins)
             }
             .preferredColorScheme(.dark)
+        }
+    }
+
+    private func save() {
+        Task {
+            if apiKey != "" || !model.hasAPIKey {
+                await model.saveAPIKey(apiKey)
+            }
+            model.config = draft
+            dismiss()
+        }
+    }
+
+    private func labelled<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(theme.textTertiary)
+            content()
+        }
+        .padding(.vertical, 2)
+    }
+
+    private func presetName(_ value: String) -> String {
+        switch value {
+        case "safe": return "只读"
+        case "review": return "改前确认"
+        case "danger": return "完全允许"
+        default: return "工作区写入"
         }
     }
 

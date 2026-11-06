@@ -69,8 +69,8 @@ private struct ChatHeader: View {
                     .foregroundStyle(theme.textPrimary)
                     .lineLimit(1)
                 HStack(spacing: 7) {
-                    chip(model.config.model.replacingOccurrences(of: "deepseek-", with: ""), icon: "cpu")
-                    chip(permissionLabel, icon: "lock.shield")
+                    chip(model.modelDisplayName, icon: "cpu")
+                    chip(model.permissionDisplayName, icon: "lock.shield")
                     if projection.todos.isEmpty == false {
                         chip("\(projection.todos.filter { $0.status == .completed }.count)/\(projection.todos.count)", icon: "checklist")
                     }
@@ -170,15 +170,6 @@ private struct ChatHeader: View {
         UIPasteboard.general.string = transcriptText
         #endif
         Haptics.success()
-    }
-
-    private var permissionLabel: String {
-        switch model.config.permissionPreset {
-        case "safe": return "只读"
-        case "review": return "审阅"
-        case "danger": return "完全权限"
-        default: return "工作区"
-        }
     }
 
     private func chip(_ text: String, icon: String) -> some View {
@@ -780,7 +771,7 @@ struct ComposerView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "lock.shield")
                             .font(.system(size: 8.5))
-                        Text(label(for: model.config.permissionPreset))
+                        Text(model.permissionDisplayName)
                             .font(.system(size: 10, weight: .medium))
                         Image(systemName: "chevron.down")
                             .font(.system(size: 7, weight: .semibold))
@@ -795,8 +786,8 @@ struct ComposerView: View {
                 } label: {
                     HStack(spacing: 4) {
                         Image(systemName: "cpu").font(.system(size: 8.5))
-                        Text(model.config.model.replacingOccurrences(of: "deepseek-", with: ""))
-                            .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        Text(model.modelDisplayName)
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
                         Image(systemName: "chevron.down").font(.system(size: 7, weight: .semibold))
                     }
                     .foregroundStyle(theme.textTertiary)
@@ -883,6 +874,10 @@ struct ComposerView: View {
     }
 
     private func submit() {
+        if !model.hasAPIKey {
+            model.showSettings = true
+            return
+        }
         if model.isRunning {
             Task { await model.stop() }
             return
@@ -897,9 +892,9 @@ struct ComposerView: View {
     private func label(for preset: String) -> String {
         switch preset {
         case "safe": return "只读"
-        case "review": return "审阅"
-        case "danger": return "完全权限"
-        default: return "工作区"
+        case "review": return "改前确认"
+        case "danger": return "完全允许"
+        default: return "工作区写入"
         }
     }
 }

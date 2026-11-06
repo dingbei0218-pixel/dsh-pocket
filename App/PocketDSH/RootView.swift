@@ -166,6 +166,7 @@ struct SidebarView: View {
     var body: some View {
         VStack(spacing: 0) {
             brandBar
+            if !model.hasAPIKey { connectBanner }
             newChatButton
             navRows
             Divider().overlay(theme.stroke)
@@ -205,6 +206,40 @@ struct SidebarView: View {
         .padding(.horizontal, 14)
         .padding(.top, 14)
         .padding(.bottom, 12)
+    }
+
+    private var connectBanner: some View {
+        Button {
+            Haptics.tap()
+            model.showSettings = true
+        } label: {
+            HStack(spacing: 9) {
+                Image(systemName: "key.fill")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(theme.accent)
+                    .frame(width: 22, height: 22)
+                    .background(theme.accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 6))
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("连接 DeepSeek")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(theme.textPrimary)
+                    Text("填入 API Key 后开始")
+                        .font(.system(size: 9.5))
+                        .foregroundStyle(theme.textTertiary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundStyle(theme.textTertiary)
+            }
+            .padding(.horizontal, 10)
+            .frame(height: 42)
+            .background(theme.accent.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(theme.accent.opacity(0.22), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 12)
+        .padding(.bottom, 8)
     }
 
     private var newChatButton: some View {
@@ -355,8 +390,8 @@ struct SidebarView: View {
                     .font(.system(size: 11))
                     .foregroundStyle(theme.textSecondary)
                 Spacer()
-                Text(model.config.model.replacingOccurrences(of: "deepseek-", with: ""))
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
+                Text(model.modelDisplayName)
+                    .font(.system(size: 10, weight: .medium, design: .rounded))
                     .foregroundStyle(theme.textTertiary)
             }
             .padding(.horizontal, 14)
@@ -431,11 +466,30 @@ struct EmptyStateView: View {
             DSHMark(size: 54)
                 .shadow(color: theme.accent.opacity(0.35), radius: 24)
 
+            if !model.hasAPIKey {
+                Button {
+                    model.showSettings = true
+                } label: {
+                    HStack(spacing: 7) {
+                        Image(systemName: "key.fill")
+                        Text("先连接 DeepSeek")
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 9, weight: .semibold))
+                    }
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(theme.onAccent)
+                    .padding(.horizontal, 14)
+                    .frame(height: 32)
+                    .background(theme.accent, in: Capsule())
+                }
+                .buttonStyle(.plain)
+            }
+
             VStack(spacing: 6) {
                 Text("今天想做点什么？")
                     .font(.system(size: 24, weight: .bold, design: .rounded))
                     .foregroundStyle(theme.textPrimary)
-                Text("DSH 在设备本地运行 · \(model.config.model)")
+                Text("DSH 在设备本地运行 · \(model.modelDisplayName)")
                     .font(.system(size: 12))
                     .foregroundStyle(theme.textTertiary)
             }

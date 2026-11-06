@@ -245,7 +245,6 @@ struct SidebarView: View {
     private var newChatButton: some View {
         Button {
             Haptics.tap()
-            columnVisibility = .detailOnly
             onOpen()
             Task { await model.createSession() }
         } label: {
@@ -343,7 +342,6 @@ struct SidebarView: View {
                         .contentShape(Rectangle())
                         .onTapGesture {
                             Haptics.tap()
-                            columnVisibility = .detailOnly
                             onOpen()
                             Task { await model.open(session) }
                         }

@@ -197,17 +197,65 @@ See [docs/TESTING.md](docs/TESTING.md). `dsh` is a development harness and is no
 
 ## Install and signing
 
-This repository **does not ship a signed ipa**. Every installer signs locally with their own Apple ID:
+iOS requires every executable to be signed by an Apple-trusted certificate. The repository does **not** ship a signed ipa; pick the path that matches who is installing.
 
-- Xcode + a free Apple ID: installs on your own iPhone, certificate expires after 7 days, just Run again;
-- Unsigned ipa + AltStore / Sideloadly: sign locally, also 7 days;
-- TestFlight / App Store: requires a paid Apple Developer Program membership.
+### A. Xcode + a free Apple ID (your own iPhone)
+
+1. Install Xcode 16+ from the Mac App Store, open it once and accept the license.
+2. Xcode → Settings → Accounts → **+** → Apple ID, then sign in.
+3. Open `App/PocketDSH.xcodeproj`, select the `PocketDSH` target → Signing & Capabilities.
+4. Enable **Automatically manage signing**, choose your **Personal Team**, and change the Bundle Identifier to something unique, e.g. `com.yourname.dshpocket`.
+5. Connect your iPhone by USB, unlock it and tap **Trust**.
+6. On iOS 16+: Settings → Privacy & Security → **Developer Mode** → on → restart the phone.
+7. Select your iPhone as the run destination and press **Run**.
+8. If iOS blocks the app: Settings → General → VPN & Device Management → your Apple ID → **Trust**.
+
+The free certificate expires after **7 days**. Reconnect and Run again, or use AltStore/Sideloadly to refresh automatically. A free Apple ID can register a limited number of App IDs per week (currently 10) and install up to 3 self-signed apps per device.
+
+### B. Unsigned ipa + AltStore / Sideloadly
+
+Build the unsigned package:
 
 ```bash
-./scripts/build-unsigned-ipa.sh   # produces build/PocketDSH-unsigned.ipa
+./scripts/build-unsigned-ipa.sh
+# -> build/PocketDSH-unsigned.ipa
 ```
 
-See [docs/INSTALL.md](docs/INSTALL.md) for the step-by-step guide.
+This ipa cannot be installed by itself. Sign it on your own machine:
+
+**AltStore (Mac or Windows)**
+
+1. Install AltServer from <https://altstore.io/> and keep it running on the same Wi-Fi as the iPhone.
+2. Connect the iPhone by USB, select it in AltServer and choose **Install AltStore**; sign in with your Apple ID when asked.
+3. On the iPhone: Settings → General → VPN & Device Management → trust the AltStore developer profile; enable Developer Mode as in step A6.
+4. Open AltStore → **My Apps** → **+** → select `PocketDSH-unsigned.ipa`.
+5. AltStore signs it with your Apple ID and installs it. Use **Refresh** before the 7-day certificate expires (AltServer must be reachable).
+
+**Sideloadly (Mac or Windows)**
+
+1. Install Sideloadly from <https://sideloadly.io/> and connect the iPhone by USB.
+2. Drag `PocketDSH-unsigned.ipa` into Sideloadly, enter your Apple ID, and press **Start**. Complete two-factor authentication if prompted.
+3. Trust the developer profile and enable Developer Mode as above.
+4. Re-run Sideloadly every 7 days to re-sign.
+
+Your Apple ID and password are handled by AltStore/Sideloadly on your machine. They never pass through this repository or the app.
+
+### C. TestFlight / App Store (for other people)
+
+Only this path gives a real “tap a link and install” experience, and it needs the paid **Apple Developer Program** (US$99/year).
+
+1. Enroll at <https://developer.apple.com/programs/>, complete identity verification and pay.
+2. In Xcode → Settings → Accounts, add the same Apple ID and download the team certificates.
+3. Create the app record in App Store Connect → **Apps** → **+** → New App; the Bundle ID must match the Xcode target.
+4. In Xcode set the team and a unique bundle id, then **Product → Archive**.
+5. In Organizer choose **Distribute App → App Store Connect → Upload**.
+6. App Store Connect → your app → **TestFlight**: answer export-compliance questions, add internal testers (up to 100, no review) or external testers (up to 10,000, requires Beta App Review).
+7. Testers install **TestFlight** from the App Store, accept the invite or public link, and install DSH Pocket. Builds expire after 90 days; upload a new build to continue.
+8. For the public App Store, fill in the privacy policy, screenshots, age rating and submit for review.
+
+### API key
+
+There is no “log in with DeepSeek” OAuth for third-party apps. Each user creates their own key at <https://platform.deepseek.com/api_keys>, opens **Settings** in DSH Pocket, pastes it, and picks a model. The key is stored in the iOS Keychain and is never sent anywhere except the DeepSeek API endpoint you configure. Never share your own key in an issue or screenshot.
 
 ## Privacy
 

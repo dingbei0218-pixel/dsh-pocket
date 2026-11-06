@@ -192,17 +192,65 @@ DEEPSEEK_API_KEY=test swift run dsh run "read hello.txt" \
 
 ## 安装与签名
 
-仓库**不包含已签名的 ipa**。每个安装者用自己的 Apple ID 在本地签名：
+iOS 要求每个可执行文件都由 Apple 信任的证书签名。仓库**不提供已签名的 ipa**；按“谁用”选一条路。
 
-- Xcode + 免费 Apple ID：装到自己 iPhone，证书 7 天，到期重跑；
-- 未签名 ipa + AltStore / Sideloadly：本机签名，同样 7 天；
-- TestFlight / App Store：需要付费开发者账号。
+### A. Xcode + 免费 Apple ID（装自己的 iPhone）
+
+1. 从 Mac App Store 安装 Xcode 16+，首次打开并同意许可。
+2. Xcode → Settings → Accounts → **+** → 登录你的 Apple ID。
+3. 打开 `App/PocketDSH.xcodeproj`，选中 `PocketDSH` target → Signing & Capabilities。
+4. 勾选 **Automatically manage signing**，Team 选 **Personal Team**，Bundle Identifier 改成唯一值，例如 `com.yourname.dshpocket`。
+5. USB 连接 iPhone，解锁并点「信任」。
+6. iOS 16+：设置 → 隐私与安全性 → **开发者模式** → 打开 → 重启手机。
+7. 在 Xcode 选择你的 iPhone，点 **Run**。
+8. 如果 iOS 拦截：设置 → 通用 → VPN 与设备管理 → 你的 Apple ID → **信任**。
+
+免费证书 **7 天过期**。到期重新连接 Run 一次，或者用 AltStore/Sideloadly 自动续签。免费 Apple ID 每周能注册的 App ID 数量有限（目前 10 个），每台设备最多同时装 3 个自签 App。
+
+### B. 未签名 ipa + AltStore / Sideloadly
+
+先构建未签名包：
 
 ```bash
-./scripts/build-unsigned-ipa.sh   # 产出 build/PocketDSH-unsigned.ipa
+./scripts/build-unsigned-ipa.sh
+# -> build/PocketDSH-unsigned.ipa
 ```
 
-详见 [安装到自己 iPhone](docs/INSTALL.md)。
+这个 ipa 不能直接安装，需要用你自己的账号在本机签：
+
+**AltStore（Mac / Windows）**
+
+1. 从 <https://altstore.io/> 安装 AltServer，让它和 iPhone 连同一个 Wi-Fi 并保持运行。
+2. USB 连接 iPhone，在 AltServer 里选中设备 → **Install AltStore**，按提示登录你的 Apple ID。
+3. iPhone 上：设置 → 通用 → VPN 与设备管理 → 信任 AltStore 的开发者描述文件；按 A6 打开开发者模式。
+4. 打开 AltStore → **My Apps** → **+** → 选择 `PocketDSH-unsigned.ipa`。
+5. AltStore 会用你的 Apple ID 签名并安装。7 天到期前点 **Refresh** 续签（需要能连到 AltServer）。
+
+**Sideloadly（Mac / Windows）**
+
+1. 从 <https://sideloadly.io/> 安装 Sideloadly，USB 连接 iPhone。
+2. 把 `PocketDSH-unsigned.ipa` 拖进 Sideloadly，输入你的 Apple ID，点 **Start**；有双重验证就按提示完成。
+3. 信任开发者描述文件、打开开发者模式，步骤同上。
+4. 每 7 天重新跑一次 Sideloadly 续签。
+
+Apple ID 和密码只由 AltStore/Sideloadly 在你本机处理，不经过这个仓库，也不经过 App。
+
+### C. TestFlight / App Store（给别人用）
+
+只有这条路能做到“点个链接就装”，需要付费的 **Apple Developer Program**（99 美元/年）。
+
+1. 在 <https://developer.apple.com/programs/> 注册，完成身份验证并付费。
+2. Xcode → Settings → Accounts 登录同一 Apple ID，下载团队证书。
+3. 在 App Store Connect → **Apps** → **+** → New App 创建 App 记录，Bundle ID 必须和 Xcode 里一致。
+4. Xcode 选好 Team 和唯一 Bundle ID，**Product → Archive**。
+5. 在 Organizer 里选 **Distribute App → App Store Connect → Upload**。
+6. App Store Connect → 你的 App → **TestFlight**：回答出口合规问题，添加内部测试员（最多 100 人，免审核）或外部测试员（最多 1 万人，需要 Beta App Review）。
+7. 测试员从 App Store 安装 **TestFlight**，接受邀请或公开链接后安装 DSH Pocket。构建 90 天过期，到期前上传新构建。
+8. 要上公开 App Store，再补隐私政策、截图、年龄分级并提交审核。
+
+### API Key
+
+DeepSeek 没有给第三方 App 的 OAuth 登录。每个用户在 <https://platform.deepseek.com/api_keys> 创建自己的 Key，打开 DSH Pocket 的 **Settings** 粘贴，再选模型。Key 只存在 iOS Keychain，除了你配置的 DeepSeek API 地址之外不会发往别处。不要把自己的 Key 发到 issue 或截图里。
 
 ## 隐私
 

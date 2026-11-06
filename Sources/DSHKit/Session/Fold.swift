@@ -162,7 +162,7 @@ public struct SessionProjection: Sendable, Equatable {
             let line = first.text.split(separator: "\n").first.map(String.init) ?? first.text
             return String(line.prefix(48))
         }
-        return "New chat"
+        return "新会话"
     }
 
     public var lastAssistantText: String? {

@@ -65,6 +65,11 @@ struct RootView: View {
             ApprovalOverlay(broker: model.approvals)
                 .padding(.bottom, 10)
         }
+        .sheet(isPresented: $model.showPlugins) {
+            PluginCenterView()
+                .environmentObject(model)
+                .environmentObject(model.plugins)
+        }
         .sheet(isPresented: $model.showSkinCenter) {
             SkinCenterView()
                 .environmentObject(skins)
@@ -288,7 +293,8 @@ struct SidebarView: View {
     private var navRows: some View {
         VStack(spacing: 1) {
             navRow(icon: "bubble.left.and.bubble.right", title: "对话", active: true) {}
-            navRow(icon: "paintpalette", title: "皮肤中心") { model.showSettings = true }
+            navRow(icon: "paintpalette", title: "皮肤插件") { model.showSkinCenter = true }
+            navRow(icon: "puzzlepiece.extension", title: "功能插件") { model.showPlugins = true }
             navRow(icon: "target", title: "目标") { model.showGoal = true }
             navRow(icon: "checklist", title: "计划") { model.showTodos = true }
         }

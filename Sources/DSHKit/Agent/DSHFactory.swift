@@ -14,10 +14,12 @@ public enum DSHFactory {
         workspace: URL,
         config: DSHConfig,
         keyStore: APIKeyStore,
-        approval: ApprovalHandler?
+        approval: ApprovalHandler?,
+        extraTools: [Tool] = []
     ) async throws -> Agent {
         let provider = try provider(config: config, keyStore: keyStore)
-        let tools = config.tools()
+        var tools = config.tools()
+        for tool in extraTools { tools.register(tool) }
         return try await Agent.open(
             store: store,
             sessionID: sessionID,
@@ -36,7 +38,8 @@ public enum DSHFactory {
         workspace: URL,
         config: DSHConfig,
         keyStore: APIKeyStore,
-        approval: ApprovalHandler?
+        approval: ApprovalHandler?,
+        extraTools: [Tool] = []
     ) async throws -> Agent {
         let header = try await store.createSession(cwd: workspace.path)
         return try await openAgent(
@@ -45,7 +48,8 @@ public enum DSHFactory {
             workspace: workspace,
             config: config,
             keyStore: keyStore,
-            approval: approval
+            approval: approval,
+            extraTools: extraTools
         )
     }
 }

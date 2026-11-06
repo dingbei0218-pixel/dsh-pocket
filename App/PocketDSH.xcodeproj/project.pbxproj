@@ -8,10 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		246A5A449319EDB33E2B2415 /* SkinRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E485ACD90394D8940D25CB2 /* SkinRepository.swift */; };
+		3AB3462240E3C9617A4C8B7F /* PluginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96BD283312407E33474802FD /* PluginManager.swift */; };
 		4BE346ADA9A1DB7F43549EE0 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B1F6DC246EACB6AAC2311C /* AppTheme.swift */; };
 		4C61EC0DFD35872DC640C921 /* SkinManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E43D61DCC024418D1E2ED2 /* SkinManager.swift */; };
+		6C3BDC6FA47D96035FBCFBB9 /* MCPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9FD6AE64E4D562687E78CB /* MCPClient.swift */; };
 		6D629023E7E3A9623C1162EB /* KeychainAPIKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2B51FBDAF5018EDD27B01BF /* KeychainAPIKeyStore.swift */; };
 		708039474A42D5E2857CE96F /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E49174EF09E1D031919D8D /* ChatView.swift */; };
+		7F6BB5CF2AE719BB7E424E15 /* PluginCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE8B54566075409EC0669E92 /* PluginCenterView.swift */; };
 		873DD0232F9741F599714544 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 07CDD0CC0057F5866D24FF20 /* Assets.xcassets */; };
 		8D14EEAAF580ACCE5099DC18 /* SkinCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24E5FCEFFB31479DAE74C4C1 /* SkinCenterView.swift */; };
 		92112F0E799D2E62E5DECE41 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A1A8BEE7A33BCF38262DD1 /* AppModel.swift */; };
@@ -29,11 +32,13 @@
 		07CDD0CC0057F5866D24FF20 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1FC876E97B4EA3AE9BC55330 /* apple-dsh */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "apple-dsh"; path = ..; sourceTree = SOURCE_ROOT; };
 		24E5FCEFFB31479DAE74C4C1 /* SkinCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinCenterView.swift; sourceTree = "<group>"; };
+		2C9FD6AE64E4D562687E78CB /* MCPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MCPClient.swift; sourceTree = "<group>"; };
 		34E43D61DCC024418D1E2ED2 /* SkinManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinManager.swift; sourceTree = "<group>"; };
 		47E49174EF09E1D031919D8D /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
 		4E485ACD90394D8940D25CB2 /* SkinRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinRepository.swift; sourceTree = "<group>"; };
 		74843345A0BC84EF9AACB072 /* SpeechRecognizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizer.swift; sourceTree = "<group>"; };
 		95E9B64165A8B5AC5B668F41 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		96BD283312407E33474802FD /* PluginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginManager.swift; sourceTree = "<group>"; };
 		9DBC7CE199B5E216CE3D8D1E /* ApprovalBroker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApprovalBroker.swift; sourceTree = "<group>"; };
 		B0A1A8BEE7A33BCF38262DD1 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		B42C5E6BB42A86D4B6A1A3CC /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
@@ -43,6 +48,7 @@
 		E39CFA4450F85E6853D34DF4 /* SkinStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinStore.swift; sourceTree = "<group>"; };
 		F816DAE6C96C8E45D149EEF5 /* PocketDSHApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PocketDSHApp.swift; sourceTree = "<group>"; };
 		FBC46D752C2B45E05CE7CD66 /* SkinManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinManifest.swift; sourceTree = "<group>"; };
+		FE8B54566075409EC0669E92 /* PluginCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginCenterView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +63,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		197AF62C5A07AC2FBB824223 /* Plugins */ = {
+			isa = PBXGroup;
+			children = (
+				2C9FD6AE64E4D562687E78CB /* MCPClient.swift */,
+				FE8B54566075409EC0669E92 /* PluginCenterView.swift */,
+				96BD283312407E33474802FD /* PluginManager.swift */,
+			);
+			path = Plugins;
+			sourceTree = "<group>";
+		};
 		239293F796613E0975AFCCEB /* Packages */ = {
 			isa = PBXGroup;
 			children = (
@@ -78,6 +94,7 @@
 				95E9B64165A8B5AC5B668F41 /* SettingsView.swift */,
 				24E5FCEFFB31479DAE74C4C1 /* SkinCenterView.swift */,
 				74843345A0BC84EF9AACB072 /* SpeechRecognizer.swift */,
+				197AF62C5A07AC2FBB824223 /* Plugins */,
 				B2A6CBCA294D699425DC7088 /* Skin */,
 			);
 			path = PocketDSH;
@@ -192,6 +209,9 @@
 				E8E995E47B15BE5CD33966E3 /* ApprovalBroker.swift in Sources */,
 				708039474A42D5E2857CE96F /* ChatView.swift in Sources */,
 				6D629023E7E3A9623C1162EB /* KeychainAPIKeyStore.swift in Sources */,
+				6C3BDC6FA47D96035FBCFBB9 /* MCPClient.swift in Sources */,
+				7F6BB5CF2AE719BB7E424E15 /* PluginCenterView.swift in Sources */,
+				3AB3462240E3C9617A4C8B7F /* PluginManager.swift in Sources */,
 				C9D4CACAFC991269FE6A7BCB /* PocketDSHApp.swift in Sources */,
 				F42E34CF13D2F404CE9BD3AD /* RootView.swift in Sources */,
 				AD0112C454FFA88C200C7B8F /* SettingsView.swift in Sources */,

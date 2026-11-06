@@ -15,6 +15,7 @@ final class AppModel: ObservableObject {
     @Published var showTodos = false
     @Published var showGoal = false
     @Published var showSkinCenter = false
+    @Published var showPlugins = false
     @Published var startInDetail = false
 
     // 配置
@@ -27,6 +28,7 @@ final class AppModel: ObservableObject {
     ]
 
     let approvals = ApprovalBroker()
+    let plugins = PluginManager()
 
     private let store: SessionStore
     private let keyStore = KeychainAPIKeyStore()
@@ -82,6 +84,9 @@ final class AppModel: ObservableObject {
         if ProcessInfo.processInfo.arguments.contains("-settings") {
             showSettings = true
         }
+        if ProcessInfo.processInfo.arguments.contains("-plugins") {
+            showPlugins = true
+        }
         #endif
     }
 
@@ -97,6 +102,17 @@ final class AppModel: ObservableObject {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    func effectiveConfig() -> DSHConfig {
+        var value = config
+        let extra = plugins.skillPrompt
+        if !extra.isEmpty {
+            value.customInstructions = [value.customInstructions, extra]
+                .filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+                .joined(separator: "\n\n")
+        }
+        return value
     }
 
     var modelDisplayName: String { modelLabel(config.model) }
@@ -168,9 +184,10 @@ final class AppModel: ObservableObject {
             let agent = try await DSHFactory.createAgent(
                 store: store,
                 workspace: workspace,
-                config: config,
+                config: effectiveConfig(),
                 keyStore: keyStore,
-                approval: approvalHandler
+                approval: approvalHandler,
+                extraTools: await plugins.tools()
             )
             activate(agent: agent)
             await refreshSessions()
@@ -186,9 +203,10 @@ final class AppModel: ObservableObject {
                 store: store,
                 sessionID: summary.id,
                 workspace: workspace,
-                config: config,
+                config: effectiveConfig(),
                 keyStore: keyStore,
-                approval: approvalHandler
+                approval: approvalHandler,
+                extraTools: await plugins.tools()
             )
             activate(agent: agent)
         } catch {
@@ -252,9 +270,10 @@ final class AppModel: ObservableObject {
                 store: store,
                 sessionID: header.id,
                 workspace: workspace,
-                config: config,
+                config: effectiveConfig(),
                 keyStore: keyStore,
-                approval: approvalHandler
+                approval: approvalHandler,
+                extraTools: await plugins.tools()
             )
             activate(agent: agent)
             startInDetail = true

@@ -207,7 +207,7 @@ DEEPSEEK_API_KEY=test swift run dsh run "read hello.txt" \
 ## 隐私
 
 没有遥测、没有账号系统、没有云端会话。API Key 只在本机 Keychain，会话与工作区只在本机沙箱；
-只有 DeepSeek API、用户主动触发的网页抓取、皮肤 Git 源会产生网络请求。仓库不含证书、密钥或作者个人信息。
+只有 DeepSeek API、用户主动触发的网页抓取、皮肤 Git 源会产生网络请求。仓库内容不含证书、密钥或作者联系方式。
 
 ## 许可证与致谢
 

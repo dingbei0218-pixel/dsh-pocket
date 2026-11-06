@@ -213,7 +213,7 @@ See [docs/INSTALL.md](docs/INSTALL.md) for the step-by-step guide.
 
 No telemetry, no account system, no cloud sessions. The API key lives only in the local Keychain; sessions and workspaces stay inside the app sandbox.
 The only network requests are DeepSeek API calls, skin Git sources, and pages you explicitly ask the model to fetch.
-The repository contains no certificates, keys or author identity.
+The repository contents contain no certificates, API keys or personal contact details.
 
 ## License and credits
 
